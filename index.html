@@ -16,23 +16,9 @@
       --court: #38b6ff;
     }
     
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-    
-    body {
-      background-color: var(--sand);
-      color: var(--dark);
-    }
-    
-    .container {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 20px;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: var(--sand); color: var(--dark); }
+    .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
     
     header {
       display: flex;
@@ -43,26 +29,13 @@
       margin-bottom: 30px;
     }
     
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-    }
+    .logo { display: flex; align-items: center; gap: 15px; }
+    .logo-icon { font-size: 2.5rem; color: var(--court); }
+    .logo h1 { font-size: 1.8rem; color: var(--dark); }
     
-    .logo-icon {
-      font-size: 2.5rem;
-      color: var(--court);
-    }
-    
-    .logo h1 {
-      font-size: 1.8rem;
-      color: var(--dark);
-    }
-    
-    .date-info {
-      text-align: right;
-    }
-    
+    .date-info { text-align: right; }
+    .date-info h2 { font-size: 1.2rem; color: var(--primary); }
+
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -78,20 +51,9 @@
       text-align: center;
     }
     
-    .stat-card h3 {
-      font-size: 1.1rem;
-      color: #666;
-      margin-bottom: 10px;
-    }
-    
-    .stat-card .value {
-      font-size: 2rem;
-      font-weight: bold;
-      color: var(--primary);
-    }
-    
+    .stat-card h3 { font-size: 1.1rem; color: #666; margin-bottom: 10px; }
+    .stat-card .value { font-size: 2rem; font-weight: bold; color: var(--primary); }
     .stat-card.success .value { color: var(--secondary); }
-    .stat-card.warning .value { color: var(--warning); }
     .stat-card.danger .value { color: var(--danger); }
     
     .main-content {
@@ -106,15 +68,6 @@
       border-radius: 12px;
       padding: 25px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    }
-    
-    .section-title {
-      font-size: 1.4rem;
-      margin-bottom: 20px;
-      color: var(--dark);
-      display: flex;
-      align-items: center;
-      gap: 10px;
     }
     
     .courts-grid {
@@ -137,34 +90,15 @@
       box-shadow: 0 3px 8px rgba(0,0,0,0.1);
     }
     
-    .court.free {
-      background-color: #e3f2fd;
-      border: 2px solid #bbdefb;
-      color: var(--primary);
-    }
-    
-    .court.busy {
-      background-color: #ffebee;
-      border: 2px solid #ffcdd2;
-      color: var(--danger);
-    }
-    
-    .court.preparing {
-      background-color: #fff8e1;
-      border: 2px solid #ffecb3;
-      color: var(--warning);
-    }
-    
-    .court:hover {
-      transform: scale(1.05);
-    }
+    .court.free { background-color: #e3f2fd; border: 2px solid #bbdefb; color: var(--primary); }
+    .court.busy { background-color: #ffebee; border: 2px solid #ffcdd2; color: var(--danger); }
+    .court.preparing { background-color: #fff8e1; border: 2px solid #ffecb3; color: var(--warning); }
     
     .orders-section {
       background: white;
       border-radius: 12px;
       padding: 25px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-      height: fit-content;
     }
     
     .order-item {
@@ -175,159 +109,30 @@
       border-left: 4px solid var(--primary);
     }
     
-    .order-item.busy {
-      border-left-color: var(--danger);
-      background-color: #ffebee;
-    }
+    .order-item.busy { border-left-color: var(--danger); }
+    .order-item.preparing { border-left-color: var(--warning); }
     
-    .order-item.preparing {
-      border-left-color: var(--warning);
-      background-color: #fff8e1;
-    }
-    
-    .order-header {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 8px;
-      font-weight: bold;
-    }
-    
-    .order-items {
-      font-size: 0.95rem;
-      color: #555;
-      margin-bottom: 10px;
-    }
-    
-    .order-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    
-    .order-total {
-      font-weight: bold;
-      color: var(--primary);
-      font-size: 1.1rem;
-    }
-    
-    .order-actions button {
-      background: var(--primary);
-      color: white;
-      border: none;
-      padding: 6px 12px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.9rem;
-      transition: background 0.2s;
-    }
-    
-    .order-actions button:hover {
-      background: #1565c0;
-    }
-    
-    .order-actions button.delivered {
-      background: var(--secondary);
-    }
+    .order-header { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 10px; }
+    .order-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
     
     .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.6);
-      z-index: 1000;
-      align-items: center;
-      justify-content: center;
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6); z-index: 1000; align-items: center; justify-content: center;
     }
     
     .modal-content {
-      background: white;
-      border-radius: 15px;
-      width: 90%;
-      max-width: 600px;
-      padding: 30px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-      position: relative;
+      background: white; border-radius: 15px; width: 90%; max-width: 600px; padding: 30px; position: relative;
     }
     
-    .modal-close {
-      position: absolute;
-      top: 15px;
-      right: 15px;
-      font-size: 1.5rem;
-      cursor: pointer;
-      color: #999;
-    }
+    .modal-close { position: absolute; top: 15px; right: 15px; font-size: 1.5rem; cursor: pointer; }
+    .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; }
+    .menu-item { background: #f5f9ff; padding: 10px; border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between; }
     
-    .form-group {
-      margin-bottom: 20px;
-    }
-    
-    .form-group input {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-    }
-    
-    .menu-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 15px;
-      margin-bottom: 25px;
-    }
-    
-    .menu-item {
-      display: flex;
-      justify-content: space-between;
-      padding: 12px 15px;
-      background: #f5f9ff;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-    
-    .menu-item:hover { background: #e3f2fd; }
-    
-    .cart-items {
-      margin-bottom: 20px;
-      max-height: 200px;
-      overflow-y: auto;
-    }
-    
-    .cart-item {
-      display: flex;
-      justify-content: space-between;
-      padding: 8px 0;
-      border-bottom: 1px solid #eee;
-    }
-    
-    .cart-total {
-      display: flex;
-      justify-content: space-between;
-      font-size: 1.2rem;
-      font-weight: bold;
-      margin: 20px 0;
-      border-top: 2px dashed #ddd;
-      padding-top: 10px;
-    }
-    
-    .btn {
-      background: var(--primary);
-      color: white;
-      border: none;
-      padding: 12px 25px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-    
-    .btn-block { width: 100%; }
-    .btn-success { background: var(--secondary); }
-    .btn-danger { background: var(--danger); margin-top: 10px;}
+    .btn { padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px;}
+    .btn-success { background: var(--secondary); color: white; }
+    .btn-danger { background: var(--danger); color: white; }
 
-    @media (max-width: 900px) {
+    @media (max-width: 768px) {
       .main-content { grid-template-columns: 1fr; }
       .courts-grid { grid-template-columns: repeat(3, 1fr); }
     }
@@ -341,257 +146,164 @@
         <h1>ARENA BEACH TENNIS</h1>
       </div>
       <div class="date-info">
-        <h2 id="current-date">Sábado, 07 de Fevereiro de 2026</h2>
-        <p>☀️ Gestão em Tempo Real</p>
+        <h2 id="real-date">Carregando data...</h2>
+        <p id="real-clock">00:00:00</p>
       </div>
     </header>
 
     <div class="stats-grid">
-      <div class="stat-card">
-        <h3>Pedidos Ativos</h3>
-        <div class="value" id="stat-orders">0</div>
-      </div>
-      <div class="stat-card success">
-        <h3>Total Entregue</h3>
-        <div class="value" id="stat-delivered">0</div>
-      </div>
-      <div class="stat-card danger">
-        <h3>Quadras Ativas</h3>
-        <div class="value" id="stat-courts">0/12</div>
-      </div>
+      <div class="stat-card"><h3>Ativos</h3><div class="value" id="stat-orders">0</div></div>
+      <div class="stat-card success"><h3>Entregues</h3><div class="value" id="stat-delivered">0</div></div>
+      <div class="stat-card danger"><h3>Quadras</h3><div class="value" id="stat-courts">0/12</div></div>
     </div>
 
     <div class="main-content">
       <div class="courts-section">
-        <h2 class="section-title">🗺️ Mapa das Quadras</h2>
+        <h2 style="margin-bottom:15px">🗺️ Quadras</h2>
         <div class="courts-grid" id="courts-grid"></div>
       </div>
-
       <div class="orders-section">
-        <h2 class="section-title">⚡ Comandas Ativas</h2>
+        <h2 style="margin-bottom:15px">⚡ Comandas</h2>
         <div id="orders-list"></div>
-        <button class="btn btn-danger btn-block" onclick="resetSystem()">⚠️ Resetar Sistema</button>
+        <button class="btn btn-danger" onclick="resetSystem()">Resetar Dia</button>
       </div>
     </div>
-
-    <footer>
-      <p>© 2026 Arena Beach Tennis - Sistema Web</p>
-    </footer>
   </div>
 
   <div class="modal" id="order-modal">
     <div class="modal-content">
-      <span class="modal-close" id="close-modal">&times;</span>
-      <h2 class="modal-title">📝 Novo Pedido - Quadra <span id="modal-court-number">1</span></h2>
-      
-      <div class="form-group">
-        <label>Observação</label>
-        <input type="text" id="observation" placeholder="Ex: Sem gelo...">
-      </div>
-      
-      <h3>🥤 Menu</h3>
+      <span class="modal-close" onclick="closeModal()">&times;</span>
+      <h2 style="margin-bottom:15px">Novo Pedido - Quadra <span id="modal-court-number">1</span></h2>
       <div class="menu-grid" id="menu-grid"></div>
-      
-      <h3>🛒 Carrinho</h3>
-      <div class="cart-items" id="cart-items"></div>
-      
-      <div class="cart-total">
-        <span>Total:</span>
-        <span id="cart-total">R$ 0,00</span>
-      </div>
-      
-      <button class="btn btn-block btn-success" id="confirm-order">✅ Confirmar Pedido</button>
+      <div id="cart-items" style="margin-bottom:15px; border-top: 1px solid #eee; padding-top:10px"></div>
+      <div style="font-weight:bold; font-size:1.2rem; margin-bottom:15px">Total: <span id="cart-total">R$ 0,00</span></div>
+      <button class="btn btn-success" id="confirm-order">Confirmar</button>
     </div>
   </div>
 
   <script>
-    // ESTADO DA APLICAÇÃO
     const state = {
-      courts: Array(12).fill('free'),
-      orders: [],
+      orders: JSON.parse(localStorage.getItem('arena_orders')) || [],
       menu: [
-        { id: 1, name: 'Água 500ml', price: 6.00 },
-        { id: 2, name: 'Água de coco', price: 10.00 },
-        { id: 3, name: 'Isotônico', price: 12.00 },
-        { id: 4, name: 'Açaí 300g', price: 18.00 },
-        { id: 5, name: 'Sanduíche', price: 20.00 },
-        { id: 6, name: 'Cerveja Lata', price: 10.00 }
+        { id: 1, name: 'Água', price: 6 },
+        { id: 2, name: 'Coco', price: 10 },
+        { id: 3, name: 'Isotônico', price: 12 },
+        { id: 4, name: 'Açaí', price: 18 },
+        { id: 5, name: 'Sanduíche', price: 20 },
+        { id: 6, name: 'Cerveja', price: 10 }
       ],
       cart: [],
-      selectedCourt: 1,
-      nextOrderId: 1
+      selectedCourt: 1
     };
 
-    // PERSISTÊNCIA (LOCALSTORAGE)
-    function saveToStorage() {
-      localStorage.setItem('arena_data', JSON.stringify({
-        orders: state.orders,
-        nextId: state.nextOrderId
-      }));
+    // ATUALIZAR DATA E HORA EM TEMPO REAL
+    function updateDateTime() {
+      const agora = new Date();
+      const opcoesData = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      document.getElementById('real-date').textContent = agora.toLocaleDateString('pt-BR', opcoesData);
+      document.getElementById('real-clock').textContent = agora.toLocaleTimeString('pt-BR');
     }
+    setInterval(updateDateTime, 1000);
+    updateDateTime();
 
-    function loadFromStorage() {
-      const saved = localStorage.getItem('arena_data');
-      if (saved) {
-        const data = JSON.parse(saved);
-        state.orders = data.orders;
-        state.nextOrderId = data.nextId;
-      }
-    }
-
-    // INTERFACE
-    function updateStats() {
-      const active = state.orders.filter(o => o.status !== 'delivered');
-      const delivered = state.orders.filter(o => o.status === 'delivered');
-      const busyCourts = [...new Set(active.map(o => o.court))].length;
-
-      document.getElementById('stat-orders').textContent = active.length;
-      document.getElementById('stat-delivered').textContent = delivered.length;
-      document.getElementById('stat-courts').textContent = `${busyCourts}/12`;
-    }
-
-    function renderCourts() {
+    function render() {
+      localStorage.setItem('arena_orders', JSON.stringify(state.orders));
+      
+      // Render Quadras
       const grid = document.getElementById('courts-grid');
       grid.innerHTML = '';
-      
-      // Resetar status das quadras antes de pintar
-      state.courts.fill('free');
-      state.orders.forEach(o => {
-        if(o.status !== 'delivered') state.courts[o.court-1] = o.status;
-      });
-
-      state.courts.forEach((status, i) => {
+      for(let i=1; i<=12; i++) {
+        const order = state.orders.find(o => o.court === i && o.status !== 'delivered');
+        const status = order ? order.status : 'free';
         const div = document.createElement('div');
         div.className = `court ${status}`;
-        div.innerHTML = `<div>${i + 1}</div>`;
-        div.onclick = () => openOrderModal(i + 1);
+        div.innerHTML = `<div>${i}</div>${order ? `<small>#${order.id}</small>` : ''}`;
+        div.onclick = () => openOrderModal(i);
         grid.appendChild(div);
-      });
-    }
-
-    function renderOrders() {
-      const list = document.getElementById('orders-list');
-      list.innerHTML = '';
-      
-      const active = state.orders.filter(o => o.status !== 'delivered');
-      
-      if(active.length === 0) {
-        list.innerHTML = '<p style="text-align:center; color:#999">Nenhuma comanda aberta</p>';
-        return;
       }
 
-      active.forEach(order => {
-        const total = order.items.reduce((sum, it) => sum + (it.price * it.qty), 0);
-        const el = document.createElement('div');
-        el.className = `order-item ${order.status}`;
-        el.innerHTML = `
-          <div class="order-header">
-            <span>Quadra ${order.court} (#${order.id})</span>
-            <span>${order.time}</span>
-          </div>
-          <div class="order-items">${order.items.map(i => `${i.qty}x ${i.name}`).join(', ')}</div>
+      // Render Comandas
+      const list = document.getElementById('orders-list');
+      list.innerHTML = '';
+      const ativos = state.orders.filter(o => o.status !== 'delivered');
+      ativos.forEach(o => {
+        const div = document.createElement('div');
+        div.className = `order-item ${o.status}`;
+        div.innerHTML = `
+          <div class="order-header"><span>Q${o.court} (#${o.id})</span><span>${o.time}</span></div>
+          <div>${o.items.map(it => `${it.qty}x ${it.name}`).join(', ')}</div>
           <div class="order-footer">
-            <div class="order-total">R$ ${total.toFixed(2)}</div>
-            <div class="order-actions">
-              ${order.status === 'busy' ? 
-                `<button onclick="updateStatus(${order.id}, 'preparing')">Preparar</button>` : 
-                `<button class="delivered" onclick="updateStatus(${order.id}, 'delivered')">Entregue</button>`}
-            </div>
+            <strong>R$ ${o.total.toFixed(2)}</strong>
+            <button onclick="changeStatus(${o.id})">${o.status === 'busy' ? 'Preparar' : 'Entregar'}</button>
           </div>
         `;
-        list.appendChild(el);
+        list.appendChild(div);
       });
+
+      // Stats
+      document.getElementById('stat-orders').textContent = ativos.length;
+      document.getElementById('stat-delivered').textContent = state.orders.filter(o => o.status === 'delivered').length;
+      document.getElementById('stat-courts').textContent = `${new Set(ativos.map(o => o.court)).size}/12`;
     }
 
-    // AÇÕES
-    function openOrderModal(courtNum) {
-      state.selectedCourt = courtNum;
+    function openOrderModal(c) {
+      state.selectedCourt = c;
       state.cart = [];
-      document.getElementById('modal-court-number').textContent = courtNum;
-      document.getElementById('observation').value = '';
-      renderMenu();
+      document.getElementById('modal-court-number').textContent = c;
+      const menuDiv = document.getElementById('menu-grid');
+      menuDiv.innerHTML = '';
+      state.menu.forEach(m => {
+        const d = document.createElement('div');
+        d.className = 'menu-item';
+        d.innerHTML = `<span>${m.name}</span><span>R$${m.price}</span>`;
+        d.onclick = () => {
+          const exist = state.cart.find(item => item.id === m.id);
+          if(exist) exist.qty++; else state.cart.push({...m, qty:1});
+          renderCart();
+        };
+        menuDiv.appendChild(d);
+      });
       renderCart();
       document.getElementById('order-modal').style.display = 'flex';
     }
 
-    function renderMenu() {
-      const menu = document.getElementById('menu-grid');
-      menu.innerHTML = '';
-      state.menu.forEach(item => {
-        const div = document.createElement('div');
-        div.className = 'menu-item';
-        div.innerHTML = `<span>${item.name}</span> <b>R$${item.price}</b>`;
-        div.onclick = () => {
-          const inCart = state.cart.find(i => i.id === item.id);
-          if(inCart) inCart.qty++;
-          else state.cart.push({...item, qty: 1});
-          renderCart();
-        };
-        menu.appendChild(div);
-      });
-    }
-
     function renderCart() {
-      const cartDiv = document.getElementById('cart-items');
-      cartDiv.innerHTML = state.cart.length ? '' : '<p>Vazio</p>';
-      let total = 0;
-      state.cart.forEach(item => {
-        total += item.price * item.qty;
-        const div = document.createElement('div');
-        div.className = 'cart-item';
-        div.innerHTML = `<span>${item.qty}x ${item.name}</span> <span>R$ ${(item.price*item.qty).toFixed(2)}</span>`;
-        cartDiv.appendChild(div);
+      const div = document.getElementById('cart-items');
+      div.innerHTML = '';
+      let t = 0;
+      state.cart.forEach(i => {
+        t += i.price * i.qty;
+        div.innerHTML += `<div>${i.qty}x ${i.name} - R$ ${i.price * i.qty}</div>`;
       });
-      document.getElementById('cart-total').textContent = `R$ ${total.toFixed(2)}`;
+      document.getElementById('cart-total').textContent = `R$ ${t.toFixed(2)}`;
     }
 
     document.getElementById('confirm-order').onclick = () => {
-      if(!state.cart.length) return alert('Carrinho vazio!');
-      
-      const now = new Date();
+      if(!state.cart.length) return;
+      const agora = new Date();
       state.orders.push({
-        id: state.nextOrderId++,
+        id: state.orders.length + 1,
         court: state.selectedCourt,
         items: [...state.cart],
         status: 'busy',
-        time: `${now.getHours()}:${now.getMinutes().toString().padStart(2,'0')}`
+        time: agora.getHours() + ":" + agora.getMinutes().toString().padStart(2, '0'),
+        total: state.cart.reduce((s, i) => s + (i.price * i.qty), 0)
       });
-      
-      saveToStorage();
-      document.getElementById('order-modal').style.display = 'none';
-      renderCourts();
-      renderOrders();
-      updateStats();
+      closeModal();
+      render();
     };
 
-    function updateStatus(id, newStatus) {
-      const order = state.orders.find(o => o.id === id);
-      if(order) {
-        order.status = newStatus;
-        saveToStorage();
-        renderCourts();
-        renderOrders();
-        updateStats();
-      }
+    function changeStatus(id) {
+      const o = state.orders.find(ord => ord.id === id);
+      o.status = o.status === 'busy' ? 'preparing' : 'delivered';
+      render();
     }
 
-    function resetSystem() {
-      if(confirm('Isso apagará TODOS os pedidos. Confirma?')) {
-        localStorage.clear();
-        location.reload();
-      }
-    }
-
-    // FECHAR MODAL
-    document.getElementById('close-modal').onclick = () => document.getElementById('order-modal').style.display = 'none';
-
-    // INICIAR
-    window.onload = () => {
-      loadFromStorage();
-      renderCourts();
-      renderOrders();
-      updateStats();
-    };
+    function closeModal() { document.getElementById('order-modal').style.display = 'none'; }
+    function resetSystem() { if(confirm('Zerar todos os dados?')) { localStorage.clear(); location.reload(); } }
+    
+    window.onclick = (e) => { if(e.target.className === 'modal') closeModal(); };
+    render();
   </script>
 </body>
 </html>
