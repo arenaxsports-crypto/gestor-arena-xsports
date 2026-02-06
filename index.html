@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🏐 Arena Beach Tennis - Pedidos</title>
+  <title>🏐 Arena Beach Tennis - Sistema de Pedidos</title>
   <style>
     :root {
       --primary: #1e88e5;
@@ -229,32 +229,6 @@
       background: var(--secondary);
     }
     
-    .order-actions button.delivered:hover {
-      background: #2e7d32;
-    }
-    
-    .tabs {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
-      border-bottom: 2px solid #eee;
-      padding-bottom: 10px;
-    }
-    
-    .tab {
-      padding: 8px 16px;
-      border-radius: 6px 6px 0 0;
-      cursor: pointer;
-      font-weight: 500;
-    }
-    
-    .tab.active {
-      background: white;
-      border: 1px solid #ddd;
-      border-bottom: 2px solid var(--primary);
-      color: var(--primary);
-    }
-    
     .modal {
       display: none;
       position: fixed;
@@ -278,12 +252,6 @@
       position: relative;
     }
     
-    .modal-title {
-      font-size: 1.6rem;
-      margin-bottom: 20px;
-      color: var(--dark);
-    }
-    
     .modal-close {
       position: absolute;
       top: 15px;
@@ -297,19 +265,11 @@
       margin-bottom: 20px;
     }
     
-    .form-group label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: 500;
-    }
-    
-    .form-group select,
     .form-group input {
       width: 100%;
       padding: 12px;
       border: 1px solid #ddd;
       border-radius: 8px;
-      font-size: 1rem;
     }
     
     .menu-grid {
@@ -322,32 +282,18 @@
     .menu-item {
       display: flex;
       justify-content: space-between;
-      align-items: center;
       padding: 12px 15px;
       background: #f5f9ff;
       border-radius: 8px;
       cursor: pointer;
-      transition: background 0.2s;
     }
     
-    .menu-item:hover {
-      background: #e3f2fd;
-    }
-    
-    .menu-item .name {
-      font-weight: 500;
-    }
-    
-    .menu-item .price {
-      color: var(--primary);
-      font-weight: bold;
-    }
+    .menu-item:hover { background: #e3f2fd; }
     
     .cart-items {
       margin-bottom: 20px;
       max-height: 200px;
       overflow-y: auto;
-      padding-right: 5px;
     }
     
     .cart-item {
@@ -357,19 +303,14 @@
       border-bottom: 1px solid #eee;
     }
     
-    .cart-item .qty {
-      font-weight: bold;
-      color: var(--primary);
-    }
-    
     .cart-total {
       display: flex;
       justify-content: space-between;
       font-size: 1.2rem;
       font-weight: bold;
       margin: 20px 0;
-      padding-top: 15px;
       border-top: 2px dashed #ddd;
+      padding-top: 10px;
     }
     
     .btn {
@@ -378,71 +319,17 @@
       border: none;
       padding: 12px 25px;
       border-radius: 8px;
-      font-size: 1rem;
-      font-weight: 600;
       cursor: pointer;
-      transition: background 0.2s;
+      font-weight: bold;
     }
     
-    .btn:hover {
-      background: #1565c0;
-    }
-    
-    .btn-block {
-      width: 100%;
-    }
-    
-    .btn-success {
-      background: var(--secondary);
-    }
-    
-    .btn-success:hover {
-      background: #2e7d32;
-    }
-    
-    .btn-danger {
-      background: var(--danger);
-    }
-    
-    .btn-danger:hover {
-      background: #c62828;
-    }
-    
-    .observation {
-      margin-top: 15px;
-    }
-    
-    footer {
-      text-align: center;
-      padding: 30px;
-      color: #777;
-      font-size: 0.9rem;
-      border-top: 1px solid #ddd;
-      margin-top: 20px;
-    }
-    
+    .btn-block { width: 100%; }
+    .btn-success { background: var(--secondary); }
+    .btn-danger { background: var(--danger); margin-top: 10px;}
+
     @media (max-width: 900px) {
-      .main-content {
-        grid-template-columns: 1fr;
-      }
-      
-      .courts-grid {
-        grid-template-columns: repeat(3, 1fr);
-      }
-    }
-    
-    @media (max-width: 600px) {
-      .courts-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-      
-      .stats-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-      
-      .logo h1 {
-        font-size: 1.4rem;
-      }
+      .main-content { grid-template-columns: 1fr; }
+      .courts-grid { grid-template-columns: repeat(3, 1fr); }
     }
   </style>
 </head>
@@ -454,80 +341,59 @@
         <h1>ARENA BEACH TENNIS</h1>
       </div>
       <div class="date-info">
-        <h2>Sábado, 07 de Fevereiro de 2026</h2>
-        <p>☀️ 32°C • 8 quadras ocupadas</p>
+        <h2 id="current-date">Sábado, 07 de Fevereiro de 2026</h2>
+        <p>☀️ Gestão em Tempo Real</p>
       </div>
     </header>
 
     <div class="stats-grid">
       <div class="stat-card">
-        <h3>Pedidos Hoje</h3>
-        <div class="value">24</div>
+        <h3>Pedidos Ativos</h3>
+        <div class="value" id="stat-orders">0</div>
       </div>
       <div class="stat-card success">
-        <h3>Faturamento</h3>
-        <div class="value">R$ 842,00</div>
-      </div>
-      <div class="stat-card warning">
-        <h3>Ticket Médio</h3>
-        <div class="value">R$ 35,08</div>
+        <h3>Total Entregue</h3>
+        <div class="value" id="stat-delivered">0</div>
       </div>
       <div class="stat-card danger">
         <h3>Quadras Ativas</h3>
-        <div class="value">8/12</div>
+        <div class="value" id="stat-courts">0/12</div>
       </div>
     </div>
 
     <div class="main-content">
       <div class="courts-section">
         <h2 class="section-title">🗺️ Mapa das Quadras</h2>
-        <div class="courts-grid" id="courts-grid">
-          <!-- Quadras serão geradas pelo JavaScript -->
-        </div>
+        <div class="courts-grid" id="courts-grid"></div>
       </div>
 
       <div class="orders-section">
-        <h2 class="section-title">⚡ Pedidos Ativos</h2>
-        <div class="tabs">
-          <div class="tab active">Todos</div>
-          <div class="tab">Preparando</div>
-          <div class="tab">Entregar</div>
-        </div>
-        <div id="orders-list">
-          <!-- Pedidos serão gerados pelo JavaScript -->
-        </div>
-        <button class="btn btn-block" id="new-order-btn" style="margin-top: 20px;">
-          ➕ Novo Pedido
-        </button>
+        <h2 class="section-title">⚡ Comandas Ativas</h2>
+        <div id="orders-list"></div>
+        <button class="btn btn-danger btn-block" onclick="resetSystem()">⚠️ Resetar Sistema</button>
       </div>
     </div>
 
     <footer>
-      <p>© 2026 Sistema de Pedidos - Arena Beach Tennis</p>
+      <p>© 2026 Arena Beach Tennis - Sistema Web</p>
     </footer>
   </div>
 
-  <!-- Modal Novo Pedido -->
   <div class="modal" id="order-modal">
     <div class="modal-content">
       <span class="modal-close" id="close-modal">&times;</span>
       <h2 class="modal-title">📝 Novo Pedido - Quadra <span id="modal-court-number">1</span></h2>
       
       <div class="form-group">
-        <label>Observação (opcional)</label>
-        <input type="text" id="observation" placeholder="Ex: Sem gelo, urgente...">
+        <label>Observação</label>
+        <input type="text" id="observation" placeholder="Ex: Sem gelo...">
       </div>
       
-      <h3 style="margin: 20px 0 15px;">🥤 Cardápio</h3>
-      <div class="menu-grid" id="menu-grid">
-        <!-- Itens do cardápio serão gerados pelo JavaScript -->
-      </div>
+      <h3>🥤 Menu</h3>
+      <div class="menu-grid" id="menu-grid"></div>
       
-      <h3 style="margin: 25px 0 15px;">🛒 Carrinho</h3>
-      <div class="cart-items" id="cart-items">
-        <!-- Carrinho vazio inicialmente -->
-        <p style="text-align: center; color: #999;">Seu carrinho está vazio</p>
-      </div>
+      <h3>🛒 Carrinho</h3>
+      <div class="cart-items" id="cart-items"></div>
       
       <div class="cart-total">
         <span>Total:</span>
@@ -539,287 +405,193 @@
   </div>
 
   <script>
-    // Estado da aplicação
+    // ESTADO DA APLICAÇÃO
     const state = {
-      courts: Array(12).fill('free'), // free, busy, preparing
-      orders: [
-        { id: 1, court: 3, items: [{name: 'Água mineral', qty: 2, price: 6}, {name: 'Banana', qty: 1, price: 5}], status: 'preparing', time: '14:23' },
-        { id: 2, court: 7, items: [{name: 'Isotônico', qty: 1, price: 12}], status: 'delivered', time: '14:25' },
-        { id: 3, court: 1, items: [{name: 'Sanduíche natural', qty: 2, price: 20}], status: 'busy', time: '14:30' },
-      ],
+      courts: Array(12).fill('free'),
+      orders: [],
       menu: [
-        { id: 1, name: 'Água mineral 500ml', price: 6.00, category: 'hidratacao' },
-        { id: 2, name: 'Água de coco', price: 10.00, category: 'hidratacao' },
-        { id: 3, name: 'Isotônico 500ml', price: 12.00, category: 'hidratacao' },
-        { id: 4, name: 'Banana prata', price: 5.00, category: 'snacks' },
-        { id: 5, name: 'Barrinha de cereal', price: 8.00, category: 'snacks' },
-        { id: 6, name: 'Sanduíche natural', price: 20.00, category: 'pos-jogo' },
-        { id: 7, name: 'Açaí 300g', price: 18.00, category: 'pos-jogo' },
-        { id: 8, name: 'Cerveja lata', price: 10.00, category: 'bebidas' },
+        { id: 1, name: 'Água 500ml', price: 6.00 },
+        { id: 2, name: 'Água de coco', price: 10.00 },
+        { id: 3, name: 'Isotônico', price: 12.00 },
+        { id: 4, name: 'Açaí 300g', price: 18.00 },
+        { id: 5, name: 'Sanduíche', price: 20.00 },
+        { id: 6, name: 'Cerveja Lata', price: 10.00 }
       ],
       cart: [],
       selectedCourt: 1,
-      nextOrderId: 4
+      nextOrderId: 1
     };
 
-    // DOM Elements
-    const courtsGrid = document.getElementById('courts-grid');
-    const ordersList = document.getElementById('orders-list');
-    const orderModal = document.getElementById('order-modal');
-    const closeModal = document.getElementById('close-modal');
-    const newOrderBtn = document.getElementById('new-order-btn');
-    const menuGrid = document.getElementById('menu-grid');
-    const cartItems = document.getElementById('cart-items');
-    const cartTotal = document.getElementById('cart-total');
-    const confirmOrderBtn = document.getElementById('confirm-order');
-    const modalCourtNumber = document.getElementById('modal-court-number');
+    // PERSISTÊNCIA (LOCALSTORAGE)
+    function saveToStorage() {
+      localStorage.setItem('arena_data', JSON.stringify({
+        orders: state.orders,
+        nextId: state.nextOrderId
+      }));
+    }
 
-    // Renderizar quadras
+    function loadFromStorage() {
+      const saved = localStorage.getItem('arena_data');
+      if (saved) {
+        const data = JSON.parse(saved);
+        state.orders = data.orders;
+        state.nextOrderId = data.nextId;
+      }
+    }
+
+    // INTERFACE
+    function updateStats() {
+      const active = state.orders.filter(o => o.status !== 'delivered');
+      const delivered = state.orders.filter(o => o.status === 'delivered');
+      const busyCourts = [...new Set(active.map(o => o.court))].length;
+
+      document.getElementById('stat-orders').textContent = active.length;
+      document.getElementById('stat-delivered').textContent = delivered.length;
+      document.getElementById('stat-courts').textContent = `${busyCourts}/12`;
+    }
+
     function renderCourts() {
-      courtsGrid.innerHTML = '';
+      const grid = document.getElementById('courts-grid');
+      grid.innerHTML = '';
       
-      state.courts.forEach((status, index) => {
-        const court = document.createElement('div');
-        court.className = `court ${status}`;
-        court.textContent = index + 1;
-        court.dataset.court = index + 1;
-        
-        if (status !== 'free') {
-          const order = state.orders.find(o => o.court === index + 1 && o.status !== 'delivered');
-          if (order) {
-            court.innerHTML += `<div style="font-size:0.8rem;margin-top:8px">Pedido #${order.id}</div>`;
-          }
-        }
-        
-        court.addEventListener('click', () => openOrderModal(index + 1));
-        courtsGrid.appendChild(court);
+      // Resetar status das quadras antes de pintar
+      state.courts.fill('free');
+      state.orders.forEach(o => {
+        if(o.status !== 'delivered') state.courts[o.court-1] = o.status;
+      });
+
+      state.courts.forEach((status, i) => {
+        const div = document.createElement('div');
+        div.className = `court ${status}`;
+        div.innerHTML = `<div>${i + 1}</div>`;
+        div.onclick = () => openOrderModal(i + 1);
+        grid.appendChild(div);
       });
     }
 
-    // Renderizar pedidos
     function renderOrders() {
-      ordersList.innerHTML = '';
+      const list = document.getElementById('orders-list');
+      list.innerHTML = '';
       
-      const activeOrders = state.orders.filter(o => o.status !== 'delivered').sort((a, b) => a.id - b.id);
+      const active = state.orders.filter(o => o.status !== 'delivered');
       
-      if (activeOrders.length === 0) {
-        ordersList.innerHTML = '<p style="text-align:center;color:#999;padding:20px">Nenhum pedido ativo</p>';
+      if(active.length === 0) {
+        list.innerHTML = '<p style="text-align:center; color:#999">Nenhuma comanda aberta</p>';
         return;
       }
-      
-      activeOrders.forEach(order => {
-        const orderEl = document.createElement('div');
-        orderEl.className = `order-item ${order.status}`;
-        
-        const itemsText = order.items.map(item => `${item.name} x${item.qty}`).join(', ');
-        const total = order.items.reduce((sum, item) => sum + (item.price * item.qty), 0);
-        
-        orderEl.innerHTML = `
+
+      active.forEach(order => {
+        const total = order.items.reduce((sum, it) => sum + (it.price * it.qty), 0);
+        const el = document.createElement('div');
+        el.className = `order-item ${order.status}`;
+        el.innerHTML = `
           <div class="order-header">
-            <span>Quadra ${order.court} • #${order.id}</span>
+            <span>Quadra ${order.court} (#${order.id})</span>
             <span>${order.time}</span>
           </div>
-          <div class="order-items">${itemsText}</div>
+          <div class="order-items">${order.items.map(i => `${i.qty}x ${i.name}`).join(', ')}</div>
           <div class="order-footer">
             <div class="order-total">R$ ${total.toFixed(2)}</div>
             <div class="order-actions">
               ${order.status === 'busy' ? 
-                `<button class="prepare-btn" data-id="${order.id}">Preparar</button>` : 
-                `<button class="delivered-btn" data-id="${order.id}">Entregue</button>`}
+                `<button onclick="updateStatus(${order.id}, 'preparing')">Preparar</button>` : 
+                `<button class="delivered" onclick="updateStatus(${order.id}, 'delivered')">Entregue</button>`}
             </div>
           </div>
         `;
-        
-        ordersList.appendChild(orderEl);
-      });
-      
-      // Adicionar eventos aos botões
-      document.querySelectorAll('.prepare-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          const id = parseInt(e.target.dataset.id);
-          const order = state.orders.find(o => o.id === id);
-          if (order) {
-            order.status = 'preparing';
-            state.courts[order.court - 1] = 'preparing';
-            renderCourts();
-            renderOrders();
-          }
-        });
-      });
-      
-      document.querySelectorAll('.delivered-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          const id = parseInt(e.target.dataset.id);
-          const order = state.orders.find(o => o.id === id);
-          if (order) {
-            order.status = 'delivered';
-            // Verificar se há outro pedido ativo para esta quadra
-            const otherActive = state.orders.find(o => o.court === order.court && o.status !== 'delivered');
-            state.courts[order.court - 1] = otherActive ? otherActive.status : 'free';
-            renderCourts();
-            renderOrders();
-          }
-        });
+        list.appendChild(el);
       });
     }
 
-    // Renderizar cardápio no modal
-    function renderMenu() {
-      menuGrid.innerHTML = '';
-      
-      state.menu.forEach(item => {
-        const menuItem = document.createElement('div');
-        menuItem.className = 'menu-item';
-        menuItem.innerHTML = `
-          <span class="name">${item.name}</span>
-          <span class="price">R$ ${item.price.toFixed(2)}</span>
-        `;
-        menuItem.addEventListener('click', () => addToCart(item));
-        menuGrid.appendChild(menuItem);
-      });
-    }
-
-    // Adicionar item ao carrinho
-    function addToCart(item) {
-      const existing = state.cart.find(c => c.id === item.id);
-      if (existing) {
-        existing.qty += 1;
-      } else {
-        state.cart.push({...item, qty: 1});
-      }
-      renderCart();
-    }
-
-    // Remover item do carrinho
-    function removeFromCart(itemId) {
-      const index = state.cart.findIndex(c => c.id === itemId);
-      if (index !== -1) {
-        if (state.cart[index].qty > 1) {
-          state.cart[index].qty -= 1;
-        } else {
-          state.cart.splice(index, 1);
-        }
-        renderCart();
-      }
-    }
-
-    // Renderizar carrinho
-    function renderCart() {
-      if (state.cart.length === 0) {
-        cartItems.innerHTML = '<p style="text-align:center;color:#999;">Seu carrinho está vazio</p>';
-        cartTotal.textContent = 'R$ 0,00';
-        return;
-      }
-      
-      cartItems.innerHTML = '';
-      
-      state.cart.forEach(item => {
-        const cartItem = document.createElement('div');
-        cartItem.className = 'cart-item';
-        cartItem.innerHTML = `
-          <div>
-            <span class="name">${item.name}</span>
-            <span class="qty">x${item.qty}</span>
-          </div>
-          <div>
-            <span>R$ ${(item.price * item.qty).toFixed(2)}</span>
-            <span style="margin-left:10px;cursor:pointer;color:var(--danger);" class="remove-item" data-id="${item.id}">🗑️</span>
-          </div>
-        `;
-        cartItems.appendChild(cartItem);
-      });
-      
-      // Adicionar evento de remover
-      document.querySelectorAll('.remove-item').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          const id = parseInt(e.target.dataset.id || e.target.parentElement.dataset.id);
-          removeFromCart(id);
-        });
-      });
-      
-      // Calcular total
-      const total = state.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-      cartTotal.textContent = `R$ ${total.toFixed(2)}`;
-    }
-
-    // Abrir modal de pedido
-    function openOrderModal(courtNumber) {
-      state.selectedCourt = courtNumber;
+    // AÇÕES
+    function openOrderModal(courtNum) {
+      state.selectedCourt = courtNum;
       state.cart = [];
+      document.getElementById('modal-court-number').textContent = courtNum;
       document.getElementById('observation').value = '';
-      
-      modalCourtNumber.textContent = courtNumber;
-      renderCart();
       renderMenu();
-      orderModal.style.display = 'flex';
+      renderCart();
+      document.getElementById('order-modal').style.display = 'flex';
     }
 
-    // Confirmar pedido
-    function confirmOrder() {
-      if (state.cart.length === 0) {
-        alert('Adicione itens ao carrinho antes de confirmar!');
-        return;
-      }
+    function renderMenu() {
+      const menu = document.getElementById('menu-grid');
+      menu.innerHTML = '';
+      state.menu.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'menu-item';
+        div.innerHTML = `<span>${item.name}</span> <b>R$${item.price}</b>`;
+        div.onclick = () => {
+          const inCart = state.cart.find(i => i.id === item.id);
+          if(inCart) inCart.qty++;
+          else state.cart.push({...item, qty: 1});
+          renderCart();
+        };
+        menu.appendChild(div);
+      });
+    }
+
+    function renderCart() {
+      const cartDiv = document.getElementById('cart-items');
+      cartDiv.innerHTML = state.cart.length ? '' : '<p>Vazio</p>';
+      let total = 0;
+      state.cart.forEach(item => {
+        total += item.price * item.qty;
+        const div = document.createElement('div');
+        div.className = 'cart-item';
+        div.innerHTML = `<span>${item.qty}x ${item.name}</span> <span>R$ ${(item.price*item.qty).toFixed(2)}</span>`;
+        cartDiv.appendChild(div);
+      });
+      document.getElementById('cart-total').textContent = `R$ ${total.toFixed(2)}`;
+    }
+
+    document.getElementById('confirm-order').onclick = () => {
+      if(!state.cart.length) return alert('Carrinho vazio!');
       
-      const observation = document.getElementById('observation').value;
       const now = new Date();
-      const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-      
-      // Criar novo pedido
-      const newOrder = {
+      state.orders.push({
         id: state.nextOrderId++,
         court: state.selectedCourt,
         items: [...state.cart],
         status: 'busy',
-        time: timeStr,
-        observation: observation
-      };
-      
-      state.orders.push(newOrder);
-      state.courts[state.selectedCourt - 1] = 'busy';
-      
-      // Fechar modal e resetar
-      orderModal.style.display = 'none';
-      state.cart = [];
-      
-      // Atualizar interface
-      renderCourts();
-      renderOrders();
-      
-      alert(`Pedido #${newOrder.id} confirmado para a Quadra ${state.selectedCourt}!`);
-    }
-
-    // Event Listeners
-    closeModal.addEventListener('click', () => {
-      orderModal.style.display = 'none';
-    });
-    
-    newOrderBtn.addEventListener('click', () => openOrderModal(1));
-    
-    confirmOrderBtn.addEventListener('click', confirmOrder);
-    
-    // Fechar modal ao clicar fora
-    window.addEventListener('click', (e) => {
-      if (e.target === orderModal) {
-        orderModal.style.display = 'none';
-      }
-    });
-
-    // Inicializar aplicação
-    function initApp() {
-      // Atualizar status das quadras com base nos pedidos
-      state.orders.forEach(order => {
-        if (order.status !== 'delivered') {
-          state.courts[order.court - 1] = order.status;
-        }
+        time: `${now.getHours()}:${now.getMinutes().toString().padStart(2,'0')}`
       });
       
+      saveToStorage();
+      document.getElementById('order-modal').style.display = 'none';
       renderCourts();
       renderOrders();
+      updateStats();
+    };
+
+    function updateStatus(id, newStatus) {
+      const order = state.orders.find(o => o.id === id);
+      if(order) {
+        order.status = newStatus;
+        saveToStorage();
+        renderCourts();
+        renderOrders();
+        updateStats();
+      }
     }
 
-    // Iniciar app quando carregar
-    document.addEventListener('DOMContentLoaded', initApp);
+    function resetSystem() {
+      if(confirm('Isso apagará TODOS os pedidos. Confirma?')) {
+        localStorage.clear();
+        location.reload();
+      }
+    }
+
+    // FECHAR MODAL
+    document.getElementById('close-modal').onclick = () => document.getElementById('order-modal').style.display = 'none';
+
+    // INICIAR
+    window.onload = () => {
+      loadFromStorage();
+      renderCourts();
+      renderOrders();
+      updateStats();
+    };
   </script>
 </body>
 </html>
