@@ -9,7 +9,7 @@
         :root {
             --bg: #0f172a; --card: #1e293b; --accent: #38b6ff;
             --success: #10b981; --danger: #ef4444; --warning: #f59e0b;
-            --text: #f8fafc;
+            --text: #f8fafc; --pix: #6c43cc; --card: #1e40af; --cash: #047857;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
@@ -48,6 +48,9 @@
         .btn-success { background: var(--success); color: white; }
         .btn-danger { background: var(--danger); color: white; }
         .btn-warning { background: var(--warning); color: white; }
+        .btn-pix { background: var(--pix); color: white; }
+        .btn-card { background: var(--card); color: white; }
+        .btn-cash { background: var(--cash); color: white; }
 
         /* QUADRAS */
         .courts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; }
@@ -65,6 +68,20 @@
         .stat-card { text-align: center; padding: 20px; }
         .stat-value { font-size: 1.8rem; font-weight: bold; margin-top: 10px; }
         .stat-label { color: #94a3b8; font-size: 0.9rem; }
+
+        /* PAYMENT METHODS */
+        .payment-methods { display: grid; grid-template-columns: repeat(3, 1fr); gap:10px; margin:15px 0; }
+        .payment-btn { padding: 15px; border-radius: 10px; border: 2px solid #475569; background: #0f172a; color: white; cursor: pointer; font-weight: bold; transition: all 0.2s; }
+        .payment-btn:hover { transform: translateY(-2px); border-color: var(--accent); }
+        .payment-btn.active { border-color: var(--accent); background: var(--accent); }
+        .payment-btn.pix { border-color: var(--pix); }
+        .payment-btn.pix.active { background: var(--pix); }
+        .payment-btn.card { border-color: var(--card); }
+        .payment-btn.card.active { background: var(--card); }
+        .payment-btn.cash { border-color: var(--cash); }
+        .payment-btn.cash.active { background: var(--cash); }
+
+        .payment-icon { font-size: 1.5rem; display: block; margin-bottom: 5px; }
     </style>
 </head>
 <body>
@@ -88,6 +105,7 @@
         <div class="nav-links">
             <button onclick="showPage('pdv')"><i class="fas fa-shopping-cart"></i> PDV</button>
             <button id="nav-config" onclick="showPage('config')"><i class="fas fa-cog"></i> Configurações</button>
+            <button onclick="showPage('reports')"><i class="fas fa-chart-bar"></i> Relatórios</button>
             <button onclick="logout()" style="color:var(--danger)"><i class="fas fa-sign-out-alt"></i> Sair</button>
         </div>
     </nav>
@@ -122,13 +140,71 @@
                 </div>
                 <div class="section-card">
                     <h2><i class="fas fa-list"></i> Comandas</h2>
-                    <div style="display:flex; gap:5px; margin-bottom:15px">
+                    <div style="display:flex; gap:5px; margin-bottom:15px; flex-wrap:wrap">
                         <button class="btn btn-primary" style="padding:5px 10px; font-size:0.8rem" onclick="filterOrders('all')">Todos</button>
                         <button class="btn btn-danger" style="padding:5px 10px; font-size:0.8rem" onclick="filterOrders('busy')">Ativos</button>
                         <button class="btn btn-warning" style="padding:5px 10px; font-size:0.8rem" onclick="filterOrders('preparing')">Preparando</button>
                         <button class="btn btn-success" style="padding:5px 10px; font-size:0.8rem" onclick="filterOrders('done')">Concluídos</button>
+                        <select id="filter-payment" style="background:#0f172a; border:1px solid #475569; color:white; padding:5px 10px; border-radius:5px; font-size:0.8rem; width:auto" onchange="filterByPayment()">
+                            <option value="all">Todos Pagamentos</option>
+                            <option value="pix">PIX</option>
+                            <option value="card">Cartão</option>
+                            <option value="cash">Dinheiro</option>
+                        </select>
                     </div>
                     <div id="orders-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="reports" class="page">
+            <div class="section-card">
+                <h2><i class="fas fa-chart-pie"></i> Relatório de Vendas por Forma de Pagamento</h2>
+                <div style="display:flex; gap:15px; margin-top:20px; flex-wrap:wrap">
+                    <div style="flex:1; min-width:250px; background:#0f172a; padding:20px; border-radius:10px; text-align:center">
+                        <div style="font-size:2rem; color:var(--pix); margin-bottom:10px"><i class="fas fa-qrcode"></i></div>
+                        <div style="font-size:0.9rem; color:#94a3b8">PIX</div>
+                        <div style="font-size:1.8rem; font-weight:bold; margin:10px 0" id="report-pix-count">0</div>
+                        <div style="font-size:1.5rem; color:var(--pix); font-weight:bold" id="report-pix-value">R$ 0,00</div>
+                    </div>
+                    <div style="flex:1; min-width:250px; background:#0f172a; padding:20px; border-radius:10px; text-align:center">
+                        <div style="font-size:2rem; color:var(--card); margin-bottom:10px"><i class="fas fa-credit-card"></i></div>
+                        <div style="font-size:0.9rem; color:#94a3b8">Cartão</div>
+                        <div style="font-size:1.8rem; font-weight:bold; margin:10px 0" id="report-card-count">0</div>
+                        <div style="font-size:1.5rem; color:var(--card); font-weight:bold" id="report-card-value">R$ 0,00</div>
+                    </div>
+                    <div style="flex:1; min-width:250px; background:#0f172a; padding:20px; border-radius:10px; text-align:center">
+                        <div style="font-size:2rem; color:var(--cash); margin-bottom:10px"><i class="fas fa-money-bill-wave"></i></div>
+                        <div style="font-size:0.9rem; color:#94a3b8">Dinheiro</div>
+                        <div style="font-size:1.8rem; font-weight:bold; margin:10px 0" id="report-cash-count">0</div>
+                        <div style="font-size:1.5rem; color:var(--cash); font-weight:bold" id="report-cash-value">R$ 0,00</div>
+                    </div>
+                </div>
+
+                <div style="margin-top:30px">
+                    <h3 style="margin-bottom:15px"><i class="fas fa-calendar"></i> Filtro por Data</h3>
+                    <div style="display:flex; gap:10px; margin-bottom:15px; flex-wrap:wrap">
+                        <input type="date" id="report-start-date" style="width:auto">
+                        <input type="date" id="report-end-date" style="width:auto">
+                        <button class="btn btn-primary" onclick="generateReport()"><i class="fas fa-search"></i> Gerar Relatório</button>
+                        <button class="btn btn-success" onclick="exportReport()"><i class="fas fa-file-excel"></i> Exportar Excel</button>
+                    </div>
+                    
+                    <div id="report-details" style="margin-top:20px">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Data/Hora</th>
+                                    <th>Quadra</th>
+                                    <th>Cliente</th>
+                                    <th>Itens</th>
+                                    <th>Total</th>
+                                    <th>Pagamento</th>
+                                </tr>
+                            </thead>
+                            <tbody id="report-table-body"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -173,12 +249,32 @@
             <select id="select-cli" style="margin-bottom:15px">
                 <option value="">Cliente Avulso</option>
             </select>
+            
             <div id="menu-area" style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:15px 0"></div>
+            
             <div style="border-top:1px solid #334155; padding-top:15px; margin-top:15px">
                 <h3 style="margin-bottom:10px">🛒 Carrinho</h3>
                 <div id="cart-area"></div>
                 <h3 id="total-val" style="margin:15px 0; color:var(--accent)">Total: R$ 0,00</h3>
-                <button class="btn btn-success" style="width:100%" onclick="finishOrder()">LANÇAR PEDIDO</button>
+                
+                <h3 style="margin:20px 0 10px"><i class="fas fa-money-bill"></i> Forma de Pagamento</h3>
+                <div class="payment-methods">
+                    <button class="payment-btn pix" onclick="selectPayment('pix')">
+                        <i class="fas fa-qrcode payment-icon"></i>
+                        PIX
+                    </button>
+                    <button class="payment-btn card" onclick="selectPayment('card')">
+                        <i class="fas fa-credit-card payment-icon"></i>
+                        Cartão
+                    </button>
+                    <button class="payment-btn cash" onclick="selectPayment('cash')">
+                        <i class="fas fa-money-bill-wave payment-icon"></i>
+                        Dinheiro
+                    </button>
+                </div>
+                <input type="hidden" id="payment-method" value="pix">
+                
+                <button class="btn btn-success" style="width:100%; margin-top:15px" onclick="finishOrder()">LANÇAR PEDIDO</button>
                 <button class="btn btn-danger" style="width:100%; margin-top:10px" onclick="closeModal()">CANCELAR</button>
             </div>
         </div>
@@ -206,6 +302,8 @@
     let currentCart = [];
     let selectedCourt = null;
     let currentFilter = 'all';
+    let paymentMethod = 'pix';
+    let paymentFilter = 'all';
 
     // LOGIN
     function login() {
@@ -238,6 +336,7 @@
     function showPage(id) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.getElementById(id).classList.add('active');
+        if(id === 'reports') generateReport();
     }
 
     // CADASTROS
@@ -254,7 +353,6 @@
                 category
             });
             save();
-            // Limpar campos
             document.getElementById('prod-name').value = '';
             document.getElementById('prod-price').value = '';
         }
@@ -276,11 +374,33 @@
         }
     }
 
+    // PAYMENT METHODS
+    function selectPayment(method) {
+        paymentMethod = method;
+        document.getElementById('payment-method').value = method;
+        
+        // Atualizar visual dos botões
+        document.querySelectorAll('.payment-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        event.target.classList.add('active');
+        event.target.closest('.payment-btn').classList.add('active');
+    }
+
     // PDV LÓGICA
     function openModal(court) {
         selectedCourt = court;
         currentCart = [];
+        paymentMethod = 'pix'; // Reset para PIX como padrão
+        
         document.getElementById('modal-title').textContent = `Quadra ${court}`;
+        document.getElementById('payment-method').value = 'pix';
+        
+        // Resetar botões de pagamento
+        document.querySelectorAll('.payment-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        document.querySelector('.payment-btn.pix').classList.add('active');
         
         // Carregar Clientes no Select
         const sel = document.getElementById('select-cli');
@@ -374,6 +494,12 @@
             return;
         }
         
+        // Validar forma de pagamento
+        if(!paymentMethod) {
+            alert('Selecione uma forma de pagamento!');
+            return;
+        }
+        
         // Criar cópia dos itens com quantidade
         const itemsWithQty = currentCart.map(item => ({
             id: item.id,
@@ -388,6 +514,7 @@
             client: document.getElementById('select-cli').value || 'Avulso',
             items: itemsWithQty,
             total: currentCart.reduce((a,b) => a + (b.price * b.qty), 0),
+            payment: paymentMethod, // PIX, card ou cash
             status: 'busy',
             timestamp: new Date().toLocaleString('pt-BR')
         });
@@ -418,6 +545,12 @@
         const order = db.orders.find(o => o.id === id);
         if(!order) return;
         
+        const paymentText = {
+            pix: 'PIX',
+            card: 'Cartão',
+            cash: 'Dinheiro'
+        }[order.payment] || 'Não especificado';
+        
         const comanda = `
 ╔════════════════════════════════════════╗
 ║         COMANDA ARENA PRO              ║
@@ -425,6 +558,7 @@
 ║  Quadra: ${order.court}                              ║
 ║  Cliente: ${order.client}                            ║
 ║  Data: ${order.timestamp || new Date().toLocaleString('pt-BR')}   ║
+║  Pagamento: ${paymentText}                           ║
 ╠════════════════════════════════════════╣
 ║  ITENS:                                ║
 ${order.items.map(i => `║  ${i.qty ? i.qty + 'x' : '1x'} ${i.name.padEnd(30)} R$ ${(i.price * (i.qty || 1)).toFixed(2).padStart(5)} ║`).join('\n')}
@@ -442,13 +576,25 @@ ${order.items.map(i => `║  ${i.qty ? i.qty + 'x' : '1x'} ${i.name.padEnd(30)} 
         renderOrdersList();
     }
 
+    function filterByPayment() {
+        paymentFilter = document.getElementById('filter-payment').value;
+        renderOrdersList();
+    }
+
     function renderOrdersList() {
         const list = document.getElementById('orders-list');
         list.innerHTML = '';
         
         let filteredOrders = db.orders;
+        
+        // Filtro por status
         if(currentFilter !== 'all') {
-            filteredOrders = db.orders.filter(o => o.status === currentFilter);
+            filteredOrders = filteredOrders.filter(o => o.status === currentFilter);
+        }
+        
+        // Filtro por pagamento
+        if(paymentFilter !== 'all') {
+            filteredOrders = filteredOrders.filter(o => o.payment === paymentFilter);
         }
         
         if(filteredOrders.length === 0) {
@@ -458,8 +604,16 @@ ${order.items.map(i => `║  ${i.qty ? i.qty + 'x' : '1x'} ${i.name.padEnd(30)} 
         
         filteredOrders.sort((a, b) => b.id - a.id).forEach(o => {
             const time = o.timestamp ? `<small style="color:#64748b">${o.timestamp}</small><br>` : '';
+            
             const statusColor = o.status === 'busy' ? 'var(--danger)' : o.status === 'preparing' ? 'var(--warning)' : 'var(--success)';
             const statusText = o.status === 'busy' ? '🔴 Ativo' : o.status === 'preparing' ? '🟡 Preparando' : '🟢 Concluído';
+            
+            const paymentIcons = {
+                pix: '<i class="fas fa-qrcode" style="color:var(--pix)"></i> PIX',
+                card: '<i class="fas fa-credit-card" style="color:var(--card)"></i> Cartão',
+                cash: '<i class="fas fa-money-bill-wave" style="color:var(--cash)"></i> Dinheiro'
+            };
+            const paymentHtml = paymentIcons[o.payment] || 'Não especificado';
             
             list.innerHTML += `
                 <div class="section-card" style="border-left:4px solid ${statusColor}; margin-bottom:10px">
@@ -468,7 +622,10 @@ ${order.items.map(i => `║  ${i.qty ? i.qty + 'x' : '1x'} ${i.name.padEnd(30)} 
                             <strong style="font-size:1.1rem">Quadra ${o.court} - ${o.client}</strong><br>
                             ${time}
                             <small>${o.items.map(i => `${i.qty ? i.qty + 'x ' : ''}${i.name}`).join(', ')}</small><br>
-                            <strong style="font-size:1.2rem; color:var(--accent)">R$ ${o.total.toFixed(2)}</strong>
+                            <strong style="font-size:1.2rem; color:var(--accent)">R$ ${o.total.toFixed(2)}</strong><br>
+                            <span style="background:#0f172a; padding:3px 10px; border-radius:10px; font-size:0.8rem; margin-top:5px; display:inline-block">
+                                ${paymentHtml}
+                            </span>
                         </div>
                         <div style="text-align:right">
                             <span style="background:${statusColor}; padding:3px 10px; border-radius:10px; font-size:0.8rem">${statusText}</span>
@@ -504,6 +661,98 @@ ${order.items.map(i => `║  ${i.qty ? i.qty + 'x' : '1x'} ${i.name.padEnd(30)} 
         document.getElementById('revenue-today').textContent = `R$ ${revenue.toFixed(2)}`;
         document.getElementById('ticket-medio').textContent = `R$ ${ticketMedio.toFixed(2)}`;
         document.getElementById('courts-busy').textContent = `${courtsBusy}/12`;
+    }
+
+    // RELATÓRIOS
+    function generateReport() {
+        const startDate = document.getElementById('report-start-date').value;
+        const endDate = document.getElementById('report-end-date').value;
+        
+        let filteredOrders = [...db.orders];
+        
+        if(startDate && endDate) {
+            filteredOrders = filteredOrders.filter(o => {
+                if(!o.timestamp) return false;
+                const orderDate = new Date(o.timestamp.split(',')[0].split('/').reverse().join('-'));
+                const start = new Date(startDate);
+                const end = new Date(endDate);
+                end.setHours(23, 59, 59, 999);
+                return orderDate >= start && orderDate <= end;
+            });
+        }
+        
+        // Relatório por forma de pagamento
+        const pixOrders = filteredOrders.filter(o => o.payment === 'pix');
+        const cardOrders = filteredOrders.filter(o => o.payment === 'card');
+        const cashOrders = filteredOrders.filter(o => o.payment === 'cash');
+        
+        const pixTotal = pixOrders.reduce((sum, o) => sum + o.total, 0);
+        const cardTotal = cardOrders.reduce((sum, o) => sum + o.total, 0);
+        const cashTotal = cashOrders.reduce((sum, o) => sum + o.total, 0);
+        
+        document.getElementById('report-pix-count').textContent = pixOrders.length;
+        document.getElementById('report-pix-value').textContent = `R$ ${pixTotal.toFixed(2)}`;
+        
+        document.getElementById('report-card-count').textContent = cardOrders.length;
+        document.getElementById('report-card-value').textContent = `R$ ${cardTotal.toFixed(2)}`;
+        
+        document.getElementById('report-cash-count').textContent = cashOrders.length;
+        document.getElementById('report-cash-value').textContent = `R$ ${cashTotal.toFixed(2)}`;
+        
+        // Detalhes da tabela
+        const tbody = document.getElementById('report-table-body');
+        tbody.innerHTML = '';
+        
+        filteredOrders.sort((a, b) => b.id - a.id).forEach(o => {
+            const paymentIcons = {
+                pix: '<i class="fas fa-qrcode" style="color:var(--pix)"></i>',
+                card: '<i class="fas fa-credit-card" style="color:var(--card)"></i>',
+                cash: '<i class="fas fa-money-bill-wave" style="color:var(--cash)"></i>'
+            };
+            
+            tbody.innerHTML += `
+                <tr>
+                    <td>${o.timestamp || 'N/A'}</td>
+                    <td>${o.court}</td>
+                    <td>${o.client}</td>
+                    <td>${o.items.map(i => `${i.qty}x ${i.name}`).join(', ')}</td>
+                    <td><strong>R$ ${o.total.toFixed(2)}</strong></td>
+                    <td>${paymentIcons[o.payment] || ''} ${o.payment}</td>
+                </tr>`;
+        });
+    }
+
+    function exportReport() {
+        const table = document.querySelector('#report-details table');
+        const rows = table.querySelectorAll('tr');
+        
+        let csv = 'Data/Hora,Quadra,Cliente,Itens,Total,Pagamento\n';
+        
+        rows.forEach((row, index) => {
+            if(index === 0) return; // Pular cabeçalho
+            
+            const cells = row.querySelectorAll('td');
+            const rowData = [];
+            
+            cells.forEach(cell => {
+                // Remover tags HTML
+                const text = cell.textContent.replace(/[\n\r]/g, ' ').trim();
+                rowData.push(`"${text}"`);
+            });
+            
+            csv += rowData.join(',') + '\n';
+        });
+        
+        // Criar arquivo para download
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', `relatorio_arena_pro_${new Date().toISOString().split('T')[0]}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     }
 
     function render() {
@@ -566,6 +815,11 @@ ${order.items.map(i => `║  ${i.qty ? i.qty + 'x' : '1x'} ${i.name.padEnd(30)} 
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('nav-config').style.display = db.role === 'admin' ? 'inline' : 'none';
     }
+    
+    // Setar datas padrão para hoje
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('report-start-date').value = today;
+    document.getElementById('report-end-date').value = today;
     
     render();
 </script>
