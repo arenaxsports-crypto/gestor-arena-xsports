@@ -1,249 +1,1561 @@
-import { useNavigate } from "react-router";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
-import { Button } from "../components/ui/button";
-import { 
-  DollarSign, 
-  FileText, 
-  Package, 
-  Plus, 
-  BarChart3,
-  Warehouse,
-  Users,
-  UtensilsCrossed,
-  History,
-  Settings,
-  TrendingUp,
-  ArrowUpRight
-} from "lucide-react";
-import { LineChart, Line, ResponsiveContainer } from "recharts";
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arena Pro - Gestão ERP</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+    <style>
+        :root {
+            --bg: #0f172a; --card: #1e293b; --accent: #38b6ff;
+            --success: #10b981; --danger: #ef4444; --warning: #f59e0b;
+            --text: #f8fafc; --pix: #6c43cc; --card-color: #1e40af; --cash: #047857;
+        }
 
-export function Dashboard() {
-  const navigate = useNavigate();
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
 
-  const vendasHoje = [
-    { hora: "08h", valor: 120 },
-    { hora: "10h", valor: 280 },
-    { hora: "12h", valor: 650 },
-    { hora: "14h", valor: 420 },
-    { hora: "16h", valor: 380 },
-    { hora: "18h", valor: 720 },
-    { hora: "20h", valor: 277 },
-  ];
+        /* LOGIN OVERLAY */
+        #login-screen {
+            position: fixed; inset: 0; background: var(--bg); z-index: 2000;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .login-box { background: var(--card); padding: 40px; border-radius: 20px; width: 350px; text-align: center; }
 
-  return (
-    <div className="container mx-auto px-4 py-6 space-y-6">
-      {/* Saudação */}
-      <div className="bg-white rounded-lg p-6 shadow-sm">
-        <h2 className="text-2xl font-semibold text-gray-900">
-          Olá, Gerente! 👋
-        </h2>
-        <p className="text-gray-600 mt-1">
-          O que vamos fazer hoje?
-        </p>
-      </div>
+        /* NAVBAR */
+        nav { background: var(--card); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; }
+        .nav-links button { background: none; border: none; color: white; margin-left: 15px; cursor: pointer; font-weight: bold; }
+        .nav-links button:hover { color: var(--accent); }
 
-      {/* Cards de Métricas */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate("/app/historico")}>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">
-              Total de Vendas (Hoje)
-            </CardTitle>
-            <DollarSign className="w-5 h-5 text-green-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-gray-900">R$ 2.847,50</div>
-            <div className="flex items-center gap-1 mt-2">
-              <ArrowUpRight className="w-4 h-4 text-green-600" />
-              <span className="text-xs text-green-600 font-medium">+12% vs ontem</span>
-            </div>
-            <ResponsiveContainer width="100%" height={60} className="mt-2">
-              <LineChart data={vendasHoje}>
-                <Line 
-                  type="monotone" 
-                  dataKey="valor" 
-                  stroke="#16a34a" 
-                  strokeWidth={2}
-                  dot={false}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
 
-        <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate("/app/pdv")}>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">
-              Comandas Abertas
-            </CardTitle>
-            <FileText className="w-5 h-5 text-blue-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-gray-900">05</div>
-            <p className="text-xs text-gray-500 mt-1">3 mesas, 2 balcão</p>
-          </CardContent>
-        </Card>
+        /* SEÇÕES */
+        .page { display: none; animation: fadeIn 0.3s ease; }
+        .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate("/app/estoque")}>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">
-              Itens abaixo do mínimo
-            </CardTitle>
-            <Package className="w-5 h-5 text-red-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-gray-900">02</div>
-            <p className="text-xs text-gray-500 mt-1">Reabastecer estoque</p>
-          </CardContent>
-        </Card>
+        /* DASHBOARD & TABLES */
+        .main-grid { display: grid; grid-template-columns: 1fr 350px; gap: 20px; }
+        .section-card { background: var(--card); padding: 20px; border-radius: 15px; margin-bottom: 20px; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { text-align: left; padding: 12px; border-bottom: 1px solid #334155; }
+        
+        input, select { background: #0f172a; border: 1px solid #475569; color: white; padding: 10px; border-radius: 8px; width: 100%; margin-bottom: 10px; }
+        
+        .btn { padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .btn-primary { background: var(--accent); color: white; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-warning { background: var(--warning); color: white; }
+        .btn-pix { background: var(--pix); color: white; }
+        .btn-card { background: var(--card-color); color: white; }
+        .btn-cash { background: var(--cash); color: white; }
 
-        <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate("/app/relatorios")}>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">
-              Ticket Médio
-            </CardTitle>
-            <TrendingUp className="w-5 h-5 text-orange-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-gray-900">R$ 45,90</div>
-            <div className="flex items-center gap-1 mt-2">
-              <ArrowUpRight className="w-4 h-4 text-orange-600" />
-              <span className="text-xs text-orange-600 font-medium">+6.5% vs semana</span>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+        /* QUADRAS */
+        .courts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; }
+        .court-btn { aspect-ratio: 1/1; border-radius: 12px; border: none; color: white; cursor: pointer; font-weight: bold; font-size: 1.2rem; }
+        .free { background: #334155; } 
+        .busy { background: var(--danger); } 
+        .preparing { background: var(--warning); }
+        .done { background: var(--success); }
 
-      {/* Botões de Ação Rápida */}
-      <div className="bg-white rounded-lg p-6 shadow-sm">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          Ações Rápidas
-        </h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <Button 
-            onClick={() => navigate("/app/pdv")}
-            className="h-20 bg-orange-500 hover:bg-orange-600 flex flex-col gap-2"
-          >
-            <Plus className="w-6 h-6" />
-            Nova Comanda
-          </Button>
-          <Button 
-            onClick={() => navigate("/app/estoque")}
-            variant="outline"
-            className="h-20 flex flex-col gap-2"
-          >
-            <Warehouse className="w-6 h-6" />
-            Estoque
-          </Button>
-          <Button 
-            onClick={() => navigate("/app/relatorios")}
-            variant="outline"
-            className="h-20 flex flex-col gap-2"
-          >
-            <BarChart3 className="w-6 h-6" />
-            Relatórios
-          </Button>
-          <Button 
-            onClick={() => navigate("/app/cardapio")}
-            variant="outline"
-            className="h-20 flex flex-col gap-2"
-          >
-            <UtensilsCrossed className="w-6 h-6" />
-            Cardápio
-          </Button>
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; }
+        .modal-content { background: var(--card); padding: 30px; border-radius: 20px; width: 90%; max-width: 600px; }
+
+        /* STATS GRID */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .stat-card { text-align: center; padding: 20px; }
+        .stat-value { font-size: 1.8rem; font-weight: bold; margin-top: 10px; }
+        .stat-label { color: #94a3b8; font-size: 0.9rem; }
+
+        /* PAYMENT METHODS */
+        .payment-methods { display: grid; grid-template-columns: repeat(3, 1fr); gap:10px; margin:15px 0; }
+        .payment-btn { padding: 15px; border-radius: 10px; border: 2px solid #475569; background: #0f172a; color: white; cursor: pointer; font-weight: bold; transition: all 0.2s; }
+        .payment-btn:hover { transform: translateY(-2px); border-color: var(--accent); }
+        .payment-btn.active { border-color: var(--accent); background: var(--accent); }
+        .payment-btn.pix { border-color: var(--pix); }
+        .payment-btn.pix.active { background: var(--pix); }
+        .payment-btn.card { border-color: var(--card-color); }
+        .payment-btn.card.active { background: var(--card-color); }
+        .payment-btn.cash { border-color: var(--cash); }
+        .payment-btn.cash.active { background: var(--cash); }
+
+        .payment-icon { font-size: 1.5rem; display: block; margin-bottom: 5px; }
+
+        /* QR CODE PIX */
+        .pix-qr-container { 
+            display: none; 
+            text-align: center; 
+            margin: 20px 0; 
+            padding: 20px; 
+            background: rgba(108, 67, 204, 0.1); 
+            border-radius: 15px; 
+            border: 2px solid var(--pix);
+        }
+        .pix-qr-container.active { display: block; }
+        .pix-qr-code { 
+            background: white; 
+            padding: 15px; 
+            border-radius: 10px; 
+            display: inline-block;
+            margin: 10px 0;
+        }
+        .pix-qr-code canvas { max-width: 200px; }
+        .pix-copy-btn { 
+            background: var(--pix); 
+            color: white; 
+            border: none; 
+            padding: 8px 15px; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+
+        /* CASH CHANGE */
+        .cash-input-container { 
+            display: none; 
+            margin: 15px 0; 
+            padding: 15px; 
+            background: rgba(4, 120, 87, 0.1); 
+            border-radius: 10px; 
+            border: 2px solid var(--cash);
+        }
+        .cash-input-container.active { display: block; }
+        .change-display { 
+            margin-top: 10px; 
+            padding: 10px; 
+            background: rgba(0, 0, 0, 0.3); 
+            border-radius: 8px; 
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        /* TOAST NOTIFICATION */
+        .toast { 
+            position: fixed; 
+            bottom: 20px; 
+            right: 20px; 
+            background: var(--success); 
+            color: white; 
+            padding: 15px 25px; 
+            border-radius: 10px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 3000;
+        }
+        .toast.show { transform: translateX(0); }
+        .toast.error { background: var(--danger); }
+
+        /* OCCUPATION CHART */
+        .chart-container { 
+            background: #0f172a; 
+            padding: 20px; 
+            border-radius: 15px; 
+            margin-bottom: 20px;
+        }
+        .chart-bar { 
+            height: 40px; 
+            background: var(--accent); 
+            border-radius: 8px; 
+            margin-bottom: 10px; 
+            position: relative;
+            transition: width 0.5s ease;
+        }
+        .chart-label { 
+            position: absolute; 
+            left: 10px; 
+            top: 50%; 
+            transform: translateY(-50%); 
+            color: white; 
+            font-weight: bold;
+        }
+        .chart-value { 
+            position: absolute; 
+            right: 10px; 
+            top: 50%; 
+            transform: translateY(-50%); 
+            color: white; 
+            font-weight: bold;
+        }
+
+        /* PRODUCTS GRID */
+        .products-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); 
+            gap: 10px; 
+            margin-top: 15px;
+        }
+        .product-card { 
+            background: #0f172a; 
+            padding: 15px; 
+            border-radius: 10px; 
+            text-align: center; 
+            cursor: pointer; 
+            transition: all 0.2s;
+        }
+        .product-card:hover { 
+            transform: translateY(-5px); 
+            box-shadow: 0 5px 15px rgba(56, 182, 255, 0.3);
+        }
+        .product-name { 
+            font-size: 0.9rem; 
+            margin-bottom: 5px; 
+            white-space: nowrap; 
+            overflow: hidden; 
+            text-overflow: ellipsis;
+        }
+        .product-price { 
+            font-weight: bold; 
+            color: var(--accent);
+        }
+
+        /* OCCUPATION GRID */
+        .occupation-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); 
+            gap: 15px; 
+            margin-top: 20px;
+        }
+        .occupation-card { 
+            background: #0f172a; 
+            padding: 15px; 
+            border-radius: 10px; 
+            text-align: center;
+        }
+        .occupation-label { 
+            font-size: 0.8rem; 
+            color: #94a3b8; 
+            margin-bottom: 5px;
+        }
+        .occupation-value { 
+            font-size: 1.5rem; 
+            font-weight: bold;
+        }
+        .occupation-value.high { color: var(--danger); }
+        .occupation-value.medium { color: var(--warning); }
+        .occupation-value.low { color: var(--success); }
+
+        /* ALERT BANNER */
+        .alert-banner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .alert-banner.warning {
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+        }
+        .alert-banner.success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+
+        /* QUICK ACTIONS */
+        .quick-actions { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); 
+            gap: 15px; 
+            margin-top: 20px;
+        }
+        .quick-action-btn { 
+            padding: 20px; 
+            border-radius: 15px; 
+            border: none; 
+            cursor: pointer; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            gap: 10px;
+            transition: all 0.2s;
+        }
+        .quick-action-btn:hover { 
+            transform: translateY(-5px); 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .quick-action-icon { 
+            font-size: 1.5rem; 
+        }
+        .quick-action-label { 
+            font-size: 0.85rem; 
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- LOGIN SCREEN -->
+    <div id="login-screen">
+        <div class="login-box">
+            <h2 style="margin-bottom:20px; color: var(--accent)">ARENA PRO LOGIN</h2>
+            <input type="text" id="user-input" placeholder="Usuário (admin ou func)">
+            <input type="password" id="pass-input" placeholder="Senha">
+            <button class="btn btn-primary" style="width:100%" onclick="login()">ENTRAR</button>
+            <p id="login-err" style="color:var(--danger); margin-top:10px; font-size:0.8rem"></p>
+            <p style="color:#64748b; margin-top:15px; font-size:0.8rem">
+                Admin: admin / 123<br>
+                Func: func / 123
+            </p>
         </div>
-      </div>
-
-      {/* Menu Principal */}
-      <div className="bg-white rounded-lg p-6 shadow-sm">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          Gestão do Restaurante
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <Card 
-            className="cursor-pointer hover:shadow-lg transition-shadow"
-            onClick={() => navigate("/app/garcons")}
-          >
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="p-3 bg-purple-100 rounded-full">
-                <Users className="w-6 h-6 text-purple-600" />
-              </div>
-              <div>
-                <div className="font-semibold text-gray-900">Garçons</div>
-                <div className="text-sm text-gray-600">Gerencie equipe</div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card 
-            className="cursor-pointer hover:shadow-lg transition-shadow"
-            onClick={() => navigate("/app/historico")}
-          >
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="p-3 bg-blue-100 rounded-full">
-                <History className="w-6 h-6 text-blue-600" />
-              </div>
-              <div>
-                <div className="font-semibold text-gray-900">Histórico</div>
-                <div className="text-sm text-gray-600">Vendas anteriores</div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card 
-            className="cursor-pointer hover:shadow-lg transition-shadow"
-            onClick={() => navigate("/app/configuracoes")}
-          >
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="p-3 bg-gray-100 rounded-full">
-                <Settings className="w-6 h-6 text-gray-600" />
-              </div>
-              <div>
-                <div className="font-semibold text-gray-900">Configurações</div>
-                <div className="text-sm text-gray-600">Sistema</div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-
-      {/* Status das Mesas */}
-      <div className="bg-white rounded-lg p-6 shadow-sm">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">
-            Status das Mesas
-          </h3>
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={() => navigate("/app/pdv")}
-          >
-            Ver todas
-          </Button>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <div className="border border-gray-200 rounded-lg p-4 text-center">
-            <div className="w-3 h-3 bg-green-500 rounded-full mx-auto mb-2"></div>
-            <div className="font-medium text-gray-900">Mesa 01</div>
-            <div className="text-sm text-gray-500">Disponível</div>
-          </div>
-          <div className="border border-orange-300 bg-orange-50 rounded-lg p-4 text-center cursor-pointer hover:shadow-md" onClick={() => navigate("/app/comanda/1024?mesa=02")}>
-            <div className="w-3 h-3 bg-orange-500 rounded-full mx-auto mb-2"></div>
-            <div className="font-medium text-gray-900">Mesa 02</div>
-            <div className="text-sm text-gray-700">R$ 124,50</div>
-          </div>
-          <div className="border border-blue-300 bg-blue-50 rounded-lg p-4 text-center">
-            <div className="w-3 h-3 bg-blue-500 rounded-full mx-auto mb-2"></div>
-            <div className="font-medium text-gray-900">Mesa 03</div>
-            <div className="text-sm text-gray-700">Aguardando</div>
-          </div>
-          <div className="border border-gray-200 rounded-lg p-4 text-center">
-            <div className="w-3 h-3 bg-green-500 rounded-full mx-auto mb-2"></div>
-            <div className="font-medium text-gray-900">Mesa 04</div>
-            <div className="text-sm text-gray-500">Disponível</div>
-          </div>
-        </div>
-      </div>
     </div>
-  );
-}
+
+    <!-- NAVBAR -->
+    <nav>
+        <div class="logo"><h1>ARENA<span style="color:var(--accent)">PRO</span></h1></div>
+        <div class="nav-links">
+            <button onclick="showPage('dashboard')"><i class="fas fa-home"></i> Dashboard</button>
+            <button onclick="showPage('pdv')"><i class="fas fa-shopping-cart"></i> PDV</button>
+            <button id="nav-config" onclick="showPage('config')"><i class="fas fa-cog"></i> Configurações</button>
+            <button onclick="showPage('reports')"><i class="fas fa-chart-bar"></i> Relatórios</button>
+            <button onclick="logout()" style="color:var(--danger)"><i class="fas fa-sign-out-alt"></i> Sair</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        
+        <!-- DASHBOARD PAGE -->
+        <div id="dashboard" class="page">
+            <!-- ALERT BANNER -->
+            <div class="alert-banner">
+                <h2 style="font-size: 1.5rem; margin-bottom: 10px;">Olá, Gerente! 👋</h2>
+                <p style="opacity: 0.9;">Bem-vindo ao sistema de gestão da Arena Pro</p>
+            </div>
+
+            <!-- STATS GRID -->
+            <div class="stats-grid">
+                <div class="section-card stat-card">
+                    <div class="stat-label">Faturamento Hoje</div>
+                    <div class="stat-value" style="color:var(--success)" id="dashboard-revenue">R$ 0,00</div>
+                    <div style="color:#10b981; font-size:0.9rem; margin-top:5px">
+                        <i class="fas fa-arrow-up"></i> +12% vs ontem
+                    </div>
+                </div>
+                <div class="section-card stat-card">
+                    <div class="stat-label">Quadras Ocupadas</div>
+                    <div class="stat-value" style="color:var(--accent)" id="dashboard-courts">0/12</div>
+                    <div style="color:#94a3b8; font-size:0.9rem; margin-top:5px">
+                        <span id="dashboard-occupation">0%</span> ocupação
+                    </div>
+                </div>
+                <div class="section-card stat-card">
+                    <div class="stat-label">Pedidos Ativos</div>
+                    <div class="stat-value" id="dashboard-orders">0</div>
+                    <div style="color:#94a3b8; font-size:0.9rem; margin-top:5px">
+                        <span id="dashboard-active-courts">0</span> quadras com pedidos
+                    </div>
+                </div>
+                <div class="section-card stat-card">
+                    <div class="stat-label">Ticket Médio</div>
+                    <div class="stat-value" id="dashboard-ticket">R$ 0,00</div>
+                    <div style="color:#f59e0b; font-size:0.9rem; margin-top:5px">
+                        <i class="fas fa-arrow-up"></i> +6.5% vs semana
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECOND ROW STATS -->
+            <div class="stats-grid">
+                <div class="section-card stat-card">
+                    <div class="stat-label">Vendas PIX</div>
+                    <div class="stat-value" style="color:var(--pix)" id="dashboard-pix">R$ 0,00</div>
+                    <div style="color:#94a3b8; font-size:0.9rem; margin-top:5px">
+                        <span id="dashboard-pix-percent">0%</span> do total
+                    </div>
+                </div>
+                <div class="section-card stat-card">
+                    <div class="stat-label">Vendas Cartão</div>
+                    <div class="stat-value" style="color:var(--card-color)" id="dashboard-card">R$ 0,00</div>
+                    <div style="color:#94a3b8; font-size:0.9rem; margin-top:5px">
+                        <span id="dashboard-card-percent">0%</span> do total
+                    </div>
+                </div>
+                <div class="section-card stat-card">
+                    <div class="stat-label">Vendas Dinheiro</div>
+                    <div class="stat-value" style="color:var(--cash)" id="dashboard-cash">R$ 0,00</div>
+                    <div style="color:#94a3b8; font-size:0.9rem; margin-top:5px">
+                        <span id="dashboard-cash-percent">0%</span> do total
+                    </div>
+                </div>
+                <div class="section-card stat-card">
+                    <div class="stat-label">Estoque Baixo</div>
+                    <div class="stat-value" style="color:var(--warning)" id="dashboard-low-stock">0 itens</div>
+                    <div style="color:#94a3b8; font-size:0.9rem; margin-top:5px">
+                        Reabastecer urgente
+                    </div>
+                </div>
+            </div>
+
+            <!-- QUICK ACTIONS -->
+            <div class="section-card">
+                <h2><i class="fas fa-bolt"></i> Ações Rápidas</h2>
+                <div class="quick-actions">
+                    <button class="quick-action-btn" style="background:#38b6ff; color:white;" onclick="showPage('pdv')">
+                        <div class="quick-action-icon"><i class="fas fa-plus"></i></div>
+                        <div class="quick-action-label">Novo Pedido</div>
+                    </button>
+                    <button class="quick-action-btn" style="background:#0f172a; color:white; border:2px solid #38b6ff;" onclick="showPage('pdv')">
+                        <div class="quick-action-icon"><i class="fas fa-map"></i></div>
+                        <div class="quick-action-label">Quadras</div>
+                    </button>
+                    <button class="quick-action-btn" style="background:#0f172a; color:white; border:2px solid #10b981;" onclick="showPage('config')">
+                        <div class="quick-action-icon"><i class="fas fa-boxes"></i></div>
+                        <div class="quick-action-label">Estoque</div>
+                    </button>
+                    <button class="quick-action-btn" style="background:#ef4444; color:white;" onclick="showPage('reports')">
+                        <div class="quick-action-icon"><i class="fas fa-cash-register"></i></div>
+                        <div class="quick-action-label">Fechar Caixa</div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- OCCUPATION CHART -->
+            <div class="section-card">
+                <h2><i class="fas fa-chart-line"></i> Ocupação das Quadras por Hora</h2>
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:0.8rem; color:#94a3b8">
+                    <span>08h</span>
+                    <span>10h</span>
+                    <span>12h</span>
+                    <span>14h</span>
+                    <span>16h</span>
+                    <span>18h</span>
+                    <span>20h</span>
+                </div>
+                <div id="occupation-chart" style="height:200px; display:flex; align-items:flex-end; gap:8px">
+                    <!-- Bars will be generated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- TOP PRODUCTS -->
+            <div class="section-card">
+                <h2><i class="fas fa-trophy"></i> Produtos Mais Vendidos (Hoje)</h2>
+                <div id="top-products" style="margin-top:15px">
+                    <!-- Products will be generated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- ALERT BANNER - LOW STOCK -->
+            <div class="alert-banner warning" id="low-stock-alert" style="display:none;">
+                <h3 style="font-size: 1.2rem; margin-bottom: 10px;">⚠️ Atenção no Estoque</h3>
+                <p id="low-stock-items" style="opacity: 0.9;"></p>
+                <button class="btn btn-warning" style="margin-top:10px;" onclick="showPage('config')">
+                    Ver Estoque
+                </button>
+            </div>
+
+            <!-- STATUS DAS QUADRAS -->
+            <div class="section-card">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px">
+                    <h2><i class="fas fa-map"></i> Status das Quadras</h2>
+                    <button class="btn btn-primary" style="padding:8px 15px; font-size:0.9rem;" onclick="showPage('pdv')">
+                        Ver Todas
+                    </button>
+                </div>
+                <div class="occupation-grid" id="dashboard-courts-grid">
+                    <!-- Courts will be generated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- PDV PAGE -->
+        <div id="pdv" class="page">
+            <!-- DASHBOARD STATS -->
+            <div class="stats-grid">
+                <div class="section-card stat-card">
+                    <div class="stat-label">Pedidos Hoje</div>
+                    <div class="stat-value" id="orders-count">0</div>
+                </div>
+                <div class="section-card stat-card">
+                    <div class="stat-label">Faturamento Hoje</div>
+                    <div class="stat-value" style="color:var(--success)" id="revenue-today">R$ 0,00</div>
+                </div>
+                <div class="section-card stat-card">
+                    <div class="stat-label">Ticket Médio</div>
+                    <div class="stat-value" id="ticket-medio">R$ 0,00</div>
+                </div>
+                <div class="section-card stat-card">
+                    <div class="stat-label">Quadras Ocupadas</div>
+                    <div class="stat-value" style="color:var(--accent)" id="courts-busy">0/12</div>
+                </div>
+            </div>
+
+            <div class="main-grid">
+                <div class="section-card">
+                    <h2><i class="fas fa-map"></i> Monitor de Quadras</h2><br>
+                    <div class="courts-grid" id="courts-grid"></div>
+                </div>
+                <div class="section-card">
+                    <h2><i class="fas fa-list"></i> Comandas</h2>
+                    <div style="display:flex; gap:5px; margin-bottom:15px; flex-wrap:wrap">
+                        <button class="btn btn-primary" style="padding:5px 10px; font-size:0.8rem" onclick="filterOrders('all')">Todos</button>
+                        <button class="btn btn-danger" style="padding:5px 10px; font-size:0.8rem" onclick="filterOrders('busy')">Ativos</button>
+                        <button class="btn btn-warning" style="padding:5px 10px; font-size:0.8rem" onclick="filterOrders('preparing')">Preparando</button>
+                        <button class="btn btn-success" style="padding:5px 10px; font-size:0.8rem" onclick="filterOrders('done')">Concluídos</button>
+                        <select id="filter-payment" style="background:#0f172a; border:1px solid #475569; color:white; padding:5px 10px; border-radius:5px; font-size:0.8rem; width:auto" onchange="filterByPayment()">
+                            <option value="all">Todos Pagamentos</option>
+                            <option value="pix">PIX</option>
+                            <option value="card">Cartão</option>
+                            <option value="cash">Dinheiro</option>
+                        </select>
+                    </div>
+                    <div id="orders-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONFIG PAGE -->
+        <div id="config" class="page">
+            <div class="section-card">
+                <h2><i class="fas fa-utensils"></i> Cadastro de Produtos</h2>
+                <div style="display:flex; gap:10px; margin-top:15px">
+                    <input type="text" id="prod-name" placeholder="Nome do Produto">
+                    <input type="number" id="prod-price" placeholder="Preço R$" step="0.01">
+                    <select id="prod-category" style="background:#0f172a; border:1px solid #475569; color:white; padding:10px; border-radius:8px">
+                        <option value="hidratacao">💧 Hidratação</option>
+                        <option value="snacks">🍌 Snacks</option>
+                        <option value="comida">🍔 Comida</option>
+                        <option value="bebidas">🍺 Bebidas</option>
+                    </select>
+                    <select id="prod-min-stock" style="background:#0f172a; border:1px solid #475569; color:white; padding:10px; border-radius:8px; width:auto">
+                        <option value="10">Mínimo: 10</option>
+                        <option value="20" selected>Mínimo: 20</option>
+                        <option value="30">Mínimo: 30</option>
+                        <option value="50">Mínimo: 50</option>
+                    </select>
+                    <button class="btn btn-success" onclick="addProd()">Adicionar</button>
+                </div>
+                <table id="table-prods">
+                    <thead><tr><th>Nome</th><th>Preço</th><th>Categoria</th><th>Estoque</th><th>Ação</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <div class="section-card">
+                <h2><i class="fas fa-users"></i> Cadastro de Clientes (Mensalistas)</h2>
+                <div style="display:flex; gap:10px; margin-top:15px">
+                    <input type="text" id="cli-name" placeholder="Nome do Cliente">
+                    <input type="text" id="cli-phone" placeholder="Telefone (opcional)">
+                    <button class="btn btn-success" onclick="addCli()">Cadastrar</button>
+                </div>
+                <table id="table-clis">
+                    <thead><tr><th>Nome</th><th>Telefone</th><th>Ação</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- REPORTS PAGE -->
+        <div id="reports" class="page">
+            <div class="section-card">
+                <h2><i class="fas fa-chart-pie"></i> Relatório de Vendas por Forma de Pagamento</h2>
+                <div style="display:flex; gap:15px; margin-top:20px; flex-wrap:wrap">
+                    <div style="flex:1; min-width:250px; background:#0f172a; padding:20px; border-radius:10px; text-align:center">
+                        <div style="font-size:2rem; color:var(--pix); margin-bottom:10px"><i class="fas fa-qrcode"></i></div>
+                        <div style="font-size:0.9rem; color:#94a3b8">PIX</div>
+                        <div style="font-size:1.8rem; font-weight:bold; margin:10px 0" id="report-pix-count">0</div>
+                        <div style="font-size:1.5rem; color:var(--pix); font-weight:bold" id="report-pix-value">R$ 0,00</div>
+                    </div>
+                    <div style="flex:1; min-width:250px; background:#0f172a; padding:20px; border-radius:10px; text-align:center">
+                        <div style="font-size:2rem; color:var(--card-color); margin-bottom:10px"><i class="fas fa-credit-card"></i></div>
+                        <div style="font-size:0.9rem; color:#94a3b8">Cartão</div>
+                        <div style="font-size:1.8rem; font-weight:bold; margin:10px 0" id="report-card-count">0</div>
+                        <div style="font-size:1.5rem; color:var(--card-color); font-weight:bold" id="report-card-value">R$ 0,00</div>
+                    </div>
+                    <div style="flex:1; min-width:250px; background:#0f172a; padding:20px; border-radius:10px; text-align:center">
+                        <div style="font-size:2rem; color:var(--cash); margin-bottom:10px"><i class="fas fa-money-bill-wave"></i></div>
+                        <div style="font-size:0.9rem; color:#94a3b8">Dinheiro</div>
+                        <div style="font-size:1.8rem; font-weight:bold; margin:10px 0" id="report-cash-count">0</div>
+                        <div style="font-size:1.5rem; color:var(--cash); font-weight:bold" id="report-cash-value">R$ 0,00</div>
+                    </div>
+                </div>
+
+                <div style="margin-top:30px">
+                    <h3 style="margin-bottom:15px"><i class="fas fa-calendar"></i> Filtro por Data</h3>
+                    <div style="display:flex; gap:10px; margin-bottom:15px; flex-wrap:wrap">
+                        <input type="date" id="report-start-date" style="width:auto">
+                        <input type="date" id="report-end-date" style="width:auto">
+                        <button class="btn btn-primary" onclick="generateReport()"><i class="fas fa-search"></i> Gerar Relatório</button>
+                        <button class="btn btn-success" onclick="exportReport()"><i class="fas fa-file-excel"></i> Exportar Excel</button>
+                    </div>
+                    
+                    <div id="report-details" style="margin-top:20px">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Data/Hora</th>
+                                    <th>Quadra</th>
+                                    <th>Cliente</th>
+                                    <th>Itens</th>
+                                    <th>Total</th>
+                                    <th>Recebido</th>
+                                    <th>Troco</th>
+                                    <th>Pagamento</th>
+                                </tr>
+                            </thead>
+                            <tbody id="report-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <h2 id="modal-title">Quadra 1</h2><br>
+            <select id="select-cli" style="margin-bottom:15px">
+                <option value="">Cliente Avulso</option>
+            </select>
+            
+            <div id="menu-area" style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:15px 0"></div>
+            
+            <div style="border-top:1px solid #334155; padding-top:15px; margin-top:15px">
+                <h3 style="margin-bottom:10px">🛒 Carrinho</h3>
+                <div id="cart-area"></div>
+                <h3 id="total-val" style="margin:15px 0; color:var(--accent)">Total: R$ 0,00</h3>
+                
+                <h3 style="margin:20px 0 10px"><i class="fas fa-money-bill"></i> Forma de Pagamento</h3>
+                <div class="payment-methods">
+                    <button class="payment-btn pix active" onclick="selectPayment('pix')">
+                        <i class="fas fa-qrcode payment-icon"></i>
+                        PIX
+                    </button>
+                    <button class="payment-btn card" onclick="selectPayment('card')">
+                        <i class="fas fa-credit-card payment-icon"></i>
+                        Cartão
+                    </button>
+                    <button class="payment-btn cash" onclick="selectPayment('cash')">
+                        <i class="fas fa-money-bill-wave payment-icon"></i>
+                        Dinheiro
+                    </button>
+                </div>
+                <input type="hidden" id="payment-method" value="pix">
+                
+                <!-- QR CODE PIX -->
+                <div class="pix-qr-container active" id="pix-qr-container">
+                    <h4 style="margin-bottom:10px"><i class="fas fa-qrcode"></i> QR Code PIX</h4>
+                    <div class="pix-qr-code" id="pix-qr-code"></div>
+                    <div><strong id="pix-amount">R$ 0,00</strong></div>
+                    <button class="pix-copy-btn" onclick="copyPixCode()">
+                        <i class="fas fa-copy"></i> Copiar Código PIX
+                    </button>
+                    <button class="btn btn-primary" style="margin-top:10px; width:100%" onclick="printPix()">
+                        <i class="fas fa-print"></i> Imprimir PIX
+                    </button>
+                </div>
+                
+                <!-- CASH CHANGE -->
+                <div class="cash-input-container" id="cash-input-container">
+                    <h4 style="margin-bottom:10px"><i class="fas fa-money-bill"></i> Pagamento em Dinheiro</h4>
+                    <div style="display:flex; gap:10px; align-items:center">
+                        <input type="number" id="cash-received" placeholder="Valor recebido" step="0.01" style="width:100%" oninput="calculateChange()">
+                        <div style="font-size:1.2rem; color:var(--accent)">R$</div>
+                    </div>
+                    <div class="change-display" id="change-display">
+                        Troco: R$ 0,00
+                    </div>
+                </div>
+                
+                <button class="btn btn-success" style="width:100%; margin-top:15px" onclick="finishOrder()">LANÇAR PEDIDO</button>
+                <button class="btn btn-danger" style="width:100%; margin-top:10px" onclick="closeModal()">CANCELAR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div class="toast" id="toast"></div>
+
+<script>
+    // DADOS INICIAIS
+    let db = JSON.parse(localStorage.getItem('arena_erp_db')) || {
+        products: [
+            {id:1, name:'Água Mineral 500ml', price:6, category:'hidratacao', stock:45, minStock:30},
+            {id:2, name:'Água de Coco', price:10, category:'hidratacao', stock:25, minStock:20},
+            {id:3, name:'Isotônico 500ml', price:12, category:'hidratacao', stock:18, minStock:20},
+            {id:4, name:'Banana', price:5, category:'snacks', stock:35, minStock:20},
+            {id:5, name:'Barrinha de Cereal', price:8, category:'snacks', stock:40, minStock:20},
+            {id:6, name:'Sanduíche Natural', price:20, category:'comida', stock:25, minStock:15},
+            {id:7, name:'Açaí 300g', price:18, category:'comida', stock:15, minStock:10},
+            {id:8, name:'Cerveja Lata', price:10, category:'bebidas', stock:60, minStock:30},
+            {id:9, name:'Refrigerante Lata', price:8, category:'bebidas', stock:45, minStock:25}
+        ],
+        clients: [],
+        orders: [],
+        role: null
+    };
+
+    let currentCart = [];
+    let selectedCourt = null;
+    let currentFilter = 'all';
+    let paymentMethod = 'pix';
+    let paymentFilter = 'all';
+    let cashReceived = 0;
+    let changeAmount = 0;
+
+    // LOGIN
+    function login() {
+        const user = document.getElementById('user-input').value;
+        const pass = document.getElementById('pass-input').value;
+        
+        if(user === 'admin' && pass === '123') db.role = 'admin';
+        else if(user === 'func' && pass === '123') db.role = 'func';
+        else return document.getElementById('login-err').textContent = "❌ Acesso negado!";
+        
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('nav-config').style.display = db.role === 'admin' ? 'inline' : 'none';
+        save();
+        render();
+    }
+
+    function logout() {
+        if(confirm('Deseja sair do sistema?')) {
+            db.role = null;
+            save();
+            location.reload();
+        }
+    }
+
+    function save() {
+        localStorage.setItem('arena_erp_db', JSON.stringify(db));
+        render();
+    }
+
+    function showPage(id) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        if(id === 'reports') generateReport();
+        if(id === 'dashboard') updateDashboard();
+    }
+
+    // CADASTROS
+    function addProd() {
+        const name = document.getElementById('prod-name').value;
+        const price = parseFloat(document.getElementById('prod-price').value);
+        const category = document.getElementById('prod-category').value;
+        const minStock = parseInt(document.getElementById('prod-min-stock').value);
+        
+        if(name && price) {
+            db.products.push({
+                id: Date.now(), 
+                name, 
+                price, 
+                category,
+                stock: 50,
+                minStock: minStock
+            });
+            save();
+            document.getElementById('prod-name').value = '';
+            document.getElementById('prod-price').value = '';
+        }
+    }
+
+    function addCli() {
+        const name = document.getElementById('cli-name').value;
+        const phone = document.getElementById('cli-phone').value;
+        if(name) {
+            db.clients.push({id: Date.now(), name, phone: phone || ''});
+            save();
+            document.getElementById('cli-name').value = '';
+            document.getElementById('cli-phone').value = '';
+        }
+    }
+
+    function delItem(type, id) {
+        if(confirm(`Deseja excluir este item?`)) {
+            db[type] = db[type].filter(x => x.id !== id);
+            save();
+        }
+    }
+
+    // PAYMENT METHODS
+    function selectPayment(method) {
+        paymentMethod = method;
+        document.getElementById('payment-method').value = method;
+        
+        // Atualizar visual dos botões
+        document.querySelectorAll('.payment-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        event.target.classList.add('active');
+        event.target.closest('.payment-btn').classList.add('active');
+        
+        // Mostrar/ocultar campos específicos
+        const pixContainer = document.getElementById('pix-qr-container');
+        const cashContainer = document.getElementById('cash-input-container');
+        
+        if(method === 'pix') {
+            pixContainer.classList.add('active');
+            cashContainer.classList.remove('active');
+            updateQRCode();
+        } else {
+            pixContainer.classList.remove('active');
+        }
+        
+        if(method === 'cash') {
+            cashContainer.classList.add('active');
+            document.getElementById('cash-received').value = '';
+            document.getElementById('change-display').textContent = 'Troco: R$ 0,00';
+        } else {
+            cashContainer.classList.remove('active');
+        }
+    }
+
+    // QR CODE PIX
+    function generateQRCode(text, size = 200) {
+        const qr = qrcode(0, 'M');
+        qr.addData(text);
+        qr.make();
+        return qr.createDataURL(size);
+    }
+
+    function updateQRCode() {
+        const total = currentCart.reduce((a,b) => a + (b.price * b.qty), 0);
+        if(total === 0) {
+            document.getElementById('pix-qr-code').innerHTML = '<p style="color:#64748b">Adicione itens ao carrinho</p>';
+            document.getElementById('pix-amount').textContent = 'R$ 0,00';
+            return;
+        }
+        
+        // Código PIX fictício (substitua pelo seu)
+        const pixKey = 'SEU_CPF_OU_CHAVE_PIX';
+        const merchantName = 'ARENA PRO';
+        const city = 'SAO PAULO';
+        const amount = total.toFixed(2);
+        const reference = 'PEDIDO_' + Date.now();
+        
+        // EMV Merchant Presented: QR Code (estático)
+        const pixPayload = `00020126${(24 + pixKey.length).toString().padStart(2, '0')}0014BR.GOV.BCB.PIX01${pixKey.length.toString().padStart(2, '0')}${pixKey}52040000530398654${amount.length.toString().padStart(2, '0')}${amount}5802BR59${merchantName.length.toString().padStart(2, '0')}${merchantName}60${city.length.toString().padStart(2, '0')}${city}62${(4 + reference.length + 1).toString().padStart(2, '0')}05${reference.length.toString().padStart(2, '0')}${reference}6304`;
+        
+        // Calcular CRC16 (simplificado para demonstração)
+        const crc = 'ABCD';
+        
+        const fullPayload = pixPayload + crc;
+        
+        const qrDataUrl = generateQRCode(fullPayload);
+        document.getElementById('pix-qr-code').innerHTML = `<img src="${qrDataUrl}" alt="QR Code PIX" style="max-width:100%">`;
+        document.getElementById('pix-amount').textContent = `R$ ${amount}`;
+    }
+
+    function copyPixCode() {
+        const total = currentCart.reduce((a,b) => a + (b.price * b.qty), 0);
+        const pixKey = 'SEU_CPF_OU_CHAVE_PIX';
+        const text = `Pague R$ ${total.toFixed(2)} via PIX para: ${pixKey}`;
+        
+        navigator.clipboard.writeText(text).then(() => {
+            showToast('✅ Código PIX copiado para a área de transferência!');
+        });
+    }
+
+    function printPix() {
+        const total = currentCart.reduce((a,b) => a + (b.price * b.qty), 0);
+        const printWindow = window.open('', '', 'width=400,height=600');
+        printWindow.document.write(`
+            <html>
+            <head>
+                <title>Pagamento PIX</title>
+                <style>
+                    body { font-family: Arial; text-align: center; padding: 20px; }
+                    .qr { margin: 20px 0; }
+                    .amount { font-size: 24px; font-weight: bold; color: #6c43cc; margin: 20px 0; }
+                    .info { margin: 10px 0; color: #666; }
+                </style>
+            </head>
+            <body>
+                <h2>ARENA PRO</h2>
+                <h3>Pagamento PIX</h3>
+                <div class="amount">R$ ${total.toFixed(2)}</div>
+                <div class="qr">
+                    ${document.getElementById('pix-qr-code').innerHTML}
+                </div>
+                <div class="info">Quadra: ${selectedCourt}</div>
+                <div class="info">Data: ${new Date().toLocaleString('pt-BR')}</div>
+                <button onclick="window.print()" style="margin-top:20px; padding:10px 20px; background:#6c43cc; color:white; border:none; border-radius:5px; cursor:pointer">Imprimir</button>
+            </body>
+            </html>
+        `);
+        printWindow.document.close();
+    }
+
+    // CASH CHANGE CALCULATION
+    function calculateChange() {
+        const total = currentCart.reduce((a,b) => a + (b.price * b.qty), 0);
+        const received = parseFloat(document.getElementById('cash-received').value) || 0;
+        
+        if(received >= total) {
+            changeAmount = received - total;
+            document.getElementById('change-display').textContent = `✅ Troco: R$ ${changeAmount.toFixed(2)}`;
+            document.getElementById('change-display').style.color = '#10b981';
+        } else {
+            changeAmount = 0;
+            document.getElementById('change-display').textContent = `⚠️ Valor insuficiente!`;
+            document.getElementById('change-display').style.color = '#ef4444';
+        }
+        
+        cashReceived = received;
+    }
+
+    // TOAST NOTIFICATION
+    function showToast(message, isError = false) {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.className = 'toast';
+        if(isError) toast.classList.add('error');
+        else toast.classList.add('show');
+        
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 3000);
+    }
+
+    // PDV LÓGICA
+    function openModal(court) {
+        selectedCourt = court;
+        currentCart = [];
+        paymentMethod = 'pix';
+        cashReceived = 0;
+        changeAmount = 0;
+        
+        document.getElementById('modal-title').textContent = `Quadra ${court}`;
+        document.getElementById('payment-method').value = 'pix';
+        
+        // Resetar botões de pagamento
+        document.querySelectorAll('.payment-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        document.querySelector('.payment-btn.pix').classList.add('active');
+        
+        // Mostrar QR Code por padrão
+        document.getElementById('pix-qr-container').classList.add('active');
+        document.getElementById('cash-input-container').classList.remove('active');
+        document.getElementById('cash-received').value = '';
+        
+        // Carregar Clientes no Select
+        const sel = document.getElementById('select-cli');
+        sel.innerHTML = '<option value="">Cliente Avulso</option>';
+        db.clients.forEach(c => sel.innerHTML += `<option value="${c.name}">${c.name}</option>`);
+
+        // Carregar Menu
+        const menu = document.getElementById('menu-area');
+        menu.innerHTML = '';
+        db.products.forEach(p => {
+            const btn = document.createElement('button');
+            btn.className = 'btn btn-primary';
+            btn.style.fontSize = '0.75rem';
+            btn.style.padding = '12px 8px';
+            
+            const emojis = {
+                hidratacao: '💧',
+                snacks: '🍌',
+                comida: '🍔',
+                bebidas: '🍺'
+            };
+            
+            btn.innerHTML = `${emojis[p.category] || '📦'} ${p.name}<br><small>R$ ${p.price.toFixed(2)}</small>`;
+            btn.onclick = () => {
+                addToCart(p);
+            };
+            menu.appendChild(btn);
+        });
+
+        renderCart();
+        document.getElementById('modal').style.display = 'flex';
+    }
+
+    function addToCart(product) {
+        const existing = currentCart.find(item => item.id === product.id);
+        if(existing) {
+            existing.qty += 1;
+        } else {
+            currentCart.push({...product, qty: 1});
+        }
+        renderCart();
+        if(paymentMethod === 'pix') {
+            updateQRCode();
+        }
+    }
+
+    function removeFromCart(id) {
+        const item = currentCart.find(i => i.id === id);
+        if(item) {
+            if(item.qty > 1) {
+                item.qty -= 1;
+            } else {
+                currentCart = currentCart.filter(i => i.id !== id);
+            }
+            renderCart();
+            if(paymentMethod === 'pix') {
+                updateQRCode();
+            }
+        }
+    }
+
+    function renderCart() {
+        const area = document.getElementById('cart-area');
+        area.innerHTML = '';
+        let total = 0;
+        
+        if(currentCart.length === 0) {
+            area.innerHTML = '<p style="color:#64748b; text-align:center">Carrinho vazio</p>';
+            document.getElementById('total-val').textContent = 'Total: R$ 0,00';
+            if(paymentMethod === 'pix') {
+                document.getElementById('pix-qr-code').innerHTML = '<p style="color:#64748b">Adicione itens ao carrinho</p>';
+                document.getElementById('pix-amount').textContent = 'R$ 0,00';
+            }
+            return;
+        }
+        
+        currentCart.forEach(i => {
+            const itemTotal = i.price * i.qty;
+            total += itemTotal;
+            area.innerHTML += `
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #334155">
+                    <div>
+                        <strong>${i.qty}x ${i.name}</strong><br>
+                        <small style="color:#64748b">R$ ${i.price.toFixed(2)} cada</small>
+                    </div>
+                    <div style="text-align:right">
+                        <div>R$ ${itemTotal.toFixed(2)}</div>
+                        <button class="btn btn-danger" style="padding:3px 8px; font-size:0.7rem; margin-top:3px" onclick="removeFromCart(${i.id})">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                    </div>
+                </div>`;
+        });
+        
+        document.getElementById('total-val').textContent = `Total: R$ ${total.toFixed(2)}`;
+        
+        // Atualizar QR Code se estiver em PIX
+        if(paymentMethod === 'pix') {
+            updateQRCode();
+        }
+        
+        // Atualizar cálculo de troco se estiver em dinheiro
+        if(paymentMethod === 'cash' && document.getElementById('cash-received').value) {
+            calculateChange();
+        }
+    }
+
+    function finishOrder() {
+        if(!currentCart.length) {
+            showToast('⚠️ Adicione itens ao carrinho!', true);
+            return;
+        }
+        
+        // Validar forma de pagamento
+        if(!paymentMethod) {
+            showToast('⚠️ Selecione uma forma de pagamento!', true);
+            return;
+        }
+        
+        // Validar pagamento em dinheiro
+        if(paymentMethod === 'cash') {
+            const total = currentCart.reduce((a,b) => a + (b.price * b.qty), 0);
+            if(!cashReceived || cashReceived < total) {
+                showToast('⚠️ Valor recebido inválido!', true);
+                return;
+            }
+        }
+        
+        // Criar cópia dos itens com quantidade
+        const itemsWithQty = currentCart.map(item => ({
+            id: item.id,
+            name: item.name,
+            price: item.price,
+            qty: item.qty
+        }));
+        
+        const total = currentCart.reduce((a,b) => a + (b.price * b.qty), 0);
+        
+        const order = {
+            id: Date.now(),
+            court: selectedCourt,
+            client: document.getElementById('select-cli').value || 'Avulso',
+            items: itemsWithQty,
+            total: total,
+            payment: paymentMethod,
+            status: 'busy',
+            timestamp: new Date().toLocaleString('pt-BR')
+        };
+        
+        // Adicionar informações de dinheiro se aplicável
+        if(paymentMethod === 'cash') {
+            order.cashReceived = cashReceived;
+            order.change = changeAmount;
+        }
+        
+        db.orders.push(order);
+        save();
+        closeModal();
+        showToast('✅ Pedido lançado com sucesso!');
+    }
+
+    function changeStatus(id) {
+        const o = db.orders.find(x => x.id === id);
+        if(!o) return;
+        
+        if(o.status === 'busy') o.status = 'preparing';
+        else if(o.status === 'preparing') o.status = 'done';
+        else o.status = 'busy';
+        
+        save();
+    }
+
+    function cancelOrder(id) {
+        if(confirm('Deseja cancelar este pedido?')) {
+            db.orders = db.orders.filter(o => o.id !== id);
+            save();
+        }
+    }
+
+    function printComanda(id) {
+        const order = db.orders.find(o => o.id === id);
+        if(!order) return;
+        
+        const paymentText = {
+            pix: 'PIX',
+            card: 'Cartão',
+            cash: 'Dinheiro'
+        }[order.payment] || 'Não especificado';
+        
+        let comanda = `
+╔════════════════════════════════════════╗
+║         COMANDA ARENA PRO              ║
+╠════════════════════════════════════════╣
+║  Quadra: ${order.court}                              ║
+║  Cliente: ${order.client}                            ║
+║  Data: ${order.timestamp || new Date().toLocaleString('pt-BR')}   ║
+║  Pagamento: ${paymentText}                           ║`;
+        
+        // Adicionar informações de dinheiro se aplicável
+        if(order.payment === 'cash') {
+            comanda += `\n║  Recebido: R$ ${order.cashReceived.toFixed(2)}                      ║
+║  Troco: R$ ${order.change.toFixed(2)}                            ║`;
+        }
+        
+        comanda += `\n╠════════════════════════════════════════╣
+║  ITENS:                                ║
+${order.items.map(i => `║  ${i.qty ? i.qty + 'x' : '1x'} ${i.name.padEnd(30)} R$ ${(i.price * (i.qty || 1)).toFixed(2).padStart(5)} ║`).join('\n')}
+╠════════════════════════════════════════╣
+║  TOTAL: R$ ${order.total.toFixed(2).padStart(28)} ║
+╚════════════════════════════════════════╝
+`;
+        
+        console.log(comanda);
+        alert('📄 Comanda gerada no console!\nPressione F12 para visualizar e imprimir.');
+    }
+
+    function filterOrders(status) {
+        currentFilter = status;
+        renderOrdersList();
+    }
+
+    function filterByPayment() {
+        paymentFilter = document.getElementById('filter-payment').value;
+        renderOrdersList();
+    }
+
+    function renderOrdersList() {
+        const list = document.getElementById('orders-list');
+        list.innerHTML = '';
+        
+        let filteredOrders = db.orders;
+        
+        // Filtro por status
+        if(currentFilter !== 'all') {
+            filteredOrders = filteredOrders.filter(o => o.status === currentFilter);
+        }
+        
+        // Filtro por pagamento
+        if(paymentFilter !== 'all') {
+            filteredOrders = filteredOrders.filter(o => o.payment === paymentFilter);
+        }
+        
+        if(filteredOrders.length === 0) {
+            list.innerHTML = '<p style="color:#64748b; text-align:center; padding:20px">Nenhum pedido encontrado</p>';
+            return;
+        }
+        
+        filteredOrders.sort((a, b) => b.id - a.id).forEach(o => {
+            const time = o.timestamp ? `<small style="color:#64748b">${o.timestamp}</small><br>` : '';
+            
+            const statusColor = o.status === 'busy' ? 'var(--danger)' : o.status === 'preparing' ? 'var(--warning)' : 'var(--success)';
+            const statusText = o.status === 'busy' ? '🔴 Ativo' : o.status === 'preparing' ? '🟡 Preparando' : '🟢 Concluído';
+            
+            const paymentIcons = {
+                pix: '<i class="fas fa-qrcode" style="color:var(--pix)"></i> PIX',
+                card: '<i class="fas fa-credit-card" style="color:var(--card-color)"></i> Cartão',
+                cash: '<i class="fas fa-money-bill-wave" style="color:var(--cash)"></i> Dinheiro'
+            };
+            const paymentHtml = paymentIcons[o.payment] || 'Não especificado';
+            
+            // Informações de dinheiro
+            let cashInfo = '';
+            if(o.payment === 'cash' && o.cashReceived) {
+                cashInfo = `<br><small style="color:#047857">💵 Recebido: R$ ${o.cashReceived.toFixed(2)} | Troco: R$ ${o.change.toFixed(2)}</small>`;
+            }
+            
+            list.innerHTML += `
+                <div class="section-card" style="border-left:4px solid ${statusColor}; margin-bottom:10px">
+                    <div style="display:flex; justify-content:space-between; align-items:start">
+                        <div>
+                            <strong style="font-size:1.1rem">Quadra ${o.court} - ${o.client}</strong><br>
+                            ${time}
+                            <small>${o.items.map(i => `${i.qty ? i.qty + 'x ' : ''}${i.name}`).join(', ')}</small><br>
+                            <strong style="font-size:1.2rem; color:var(--accent)">R$ ${o.total.toFixed(2)}</strong>
+                            ${cashInfo}
+                            <br><span style="background:#0f172a; padding:3px 10px; border-radius:10px; font-size:0.8rem; margin-top:5px; display:inline-block">
+                                ${paymentHtml}
+                            </span>
+                        </div>
+                        <div style="text-align:right">
+                            <span style="background:${statusColor}; padding:3px 10px; border-radius:10px; font-size:0.8rem">${statusText}</span>
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:5px; margin-top:15px">
+                        <button class="btn btn-primary" style="padding:5px 10px; font-size:0.75rem; flex:1" onclick="changeStatus(${o.id})">
+                            <i class="fas fa-arrow-right"></i> Avançar
+                        </button>
+                        <button class="btn btn-warning" style="padding:5px 10px; font-size:0.75rem; flex:1" onclick="printComanda(${o.id})">
+                            <i class="fas fa-print"></i> Imprimir
+                        </button>
+                        <button class="btn btn-danger" style="padding:5px 10px; font-size:0.75rem; flex:1" onclick="cancelOrder(${o.id})">
+                            <i class="fas fa-times"></i> Cancelar
+                        </button>
+                    </div>
+                </div>`;
+        });
+    }
+
+    function updateStats() {
+        // Faturamento hoje
+        const today = new Date().toLocaleDateString('pt-BR');
+        const ordersToday = db.orders.filter(o => {
+            return o.timestamp && o.timestamp.includes(today);
+        });
+        
+        const revenue = ordersToday.reduce((sum, o) => sum + o.total, 0);
+        const ticketMedio = ordersToday.length > 0 ? revenue / ordersToday.length : 0;
+        const courtsBusy = db.orders.filter(o => o.status !== 'done').length;
+        
+        document.getElementById('orders-count').textContent = ordersToday.length;
+        document.getElementById('revenue-today').textContent = `R$ ${revenue.toFixed(2)}`;
+        document.getElementById('ticket-medio').textContent = `R$ ${ticketMedio.toFixed(2)}`;
+        document.getElementById('courts-busy').textContent = `${courtsBusy}/12`;
+    }
+
+    // DASHBOARD FUNCTIONS
+    function updateDashboard() {
+        const today = new Date().toLocaleDateString('pt-BR');
+        const ordersToday = db.orders.filter(o => {
+            return o.timestamp && o.timestamp.includes(today);
+        });
+        
+        const revenue = ordersToday.reduce((sum, o) => sum + o.total, 0);
+        const ticketMedio = ordersToday.length > 0 ? revenue / ordersToday.length : 0;
+        const courtsBusy = db.orders.filter(o => o.status !== 'done').length;
+        const occupationPercent = Math.round((courtsBusy / 12) * 100);
+        
+        // Atualizar stats
+        document.getElementById('dashboard-revenue').textContent = `R$ ${revenue.toFixed(2)}`;
+        document.getElementById('dashboard-courts').textContent = `${courtsBusy}/12`;
+        document.getElementById('dashboard-occupation').textContent = `${occupationPercent}%`;
+        document.getElementById('dashboard-orders').textContent = ordersToday.length;
+        document.getElementById('dashboard-active-courts').textContent = courtsBusy;
+        document.getElementById('dashboard-ticket').textContent = `R$ ${ticketMedio.toFixed(2)}`;
+        
+        // Pagamento por tipo
+        const pixOrders = ordersToday.filter(o => o.payment === 'pix');
+        const cardOrders = ordersToday.filter(o => o.payment === 'card');
+        const cashOrders = ordersToday.filter(o => o.payment === 'cash');
+        
+        const pixTotal = pixOrders.reduce((sum, o) => sum + o.total, 0);
+        const cardTotal = cardOrders.reduce((sum, o) => sum + o.total, 0);
+        const cashTotal = cashOrders.reduce((sum, o) => sum + o.total, 0);
+        
+        const totalRevenue = revenue;
+        const pixPercent = totalRevenue > 0 ? Math.round((pixTotal / totalRevenue) * 100) : 0;
+        const cardPercent = totalRevenue > 0 ? Math.round((cardTotal / totalRevenue) * 100) : 0;
+        const cashPercent = totalRevenue > 0 ? Math.round((cashTotal / totalRevenue) * 100) : 0;
+        
+        document.getElementById('dashboard-pix').textContent = `R$ ${pixTotal.toFixed(2)}`;
+        document.getElementById('dashboard-card').textContent = `R$ ${cardTotal.toFixed(2)}`;
+        document.getElementById('dashboard-cash').textContent = `R$ ${cashTotal.toFixed(2)}`;
+        document.getElementById('dashboard-pix-percent').textContent = `${pixPercent}%`;
+        document.getElementById('dashboard-card-percent').textContent = `${cardPercent}%`;
+        document.getElementById('dashboard-cash-percent').textContent = `${cashPercent}%`;
+        
+        // Produtos mais vendidos
+        const productSales = {};
+        ordersToday.forEach(order => {
+            order.items.forEach(item => {
+                if(!productSales[item.name]) {
+                    productSales[item.name] = { qty: 0, revenue: 0 };
+                }
+                productSales[item.name].qty += item.qty || 1;
+                productSales[item.name].revenue += (item.price * (item.qty || 1));
+            });
+        });
+        
+        const topProducts = Object.entries(productSales)
+            .sort((a, b) => b[1].qty - a[1].qty)
+            .slice(0, 5);
+        
+        const topProductsEl = document.getElementById('top-products');
+        topProductsEl.innerHTML = '';
+        
+        topProducts.forEach(([name, data], index) => {
+            topProductsEl.innerHTML += `
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:10px; background:#0f172a; border-radius:8px; margin-bottom:8px">
+                    <div style="display:flex; align-items:center; gap:10px">
+                        <div style="width:25px; height:25px; background:var(--accent); border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold">
+                            ${index + 1}
+                        </div>
+                        <div>
+                            <div style="font-weight:bold">${name}</div>
+                            <div style="font-size:0.8rem; color:#94a3b8">${data.qty} vendidos</div>
+                        </div>
+                    </div>
+                    <div style="font-weight:bold; color:var(--accent)">R$ ${data.revenue.toFixed(2)}</div>
+                </div>`;
+        });
+        
+        if(topProducts.length === 0) {
+            topProductsEl.innerHTML = '<p style="text-align:center; color:#94a3b8">Nenhuma venda hoje</p>';
+        }
+        
+        // Alerta de estoque baixo
+        const lowStockItems = db.products.filter(p => p.stock < p.minStock);
+        const lowStockAlert = document.getElementById('low-stock-alert');
+        const lowStockItemsEl = document.getElementById('low-stock-items');
+        
+        if(lowStockItems.length > 0) {
+            lowStockAlert.style.display = 'block';
+            lowStockItemsEl.innerHTML = lowStockItems.map(p => 
+                `${p.name} (${p.stock} unidades)`
+            ).join(' • ');
+            document.getElementById('dashboard-low-stock').textContent = `${lowStockItems.length} itens`;
+        } else {
+            lowStockAlert.style.display = 'none';
+            document.getElementById('dashboard-low-stock').textContent = `0 itens`;
+        }
+        
+        // Gráfico de ocupação
+        const occupationChart = document.getElementById('occupation-chart');
+        occupationChart.innerHTML = '';
+        
+        // Simular dados de ocupação por hora
+        const hours = ['08h', '10h', '12h', '14h', '16h', '18h', '20h'];
+        const occupationData = [2, 5, 9, 11, 12, 10, 6];
+        
+        hours.forEach((hour, index) => {
+            const percent = (occupationData[index] / 12) * 100;
+            const color = percent > 80 ? 'var(--danger)' : percent > 50 ? 'var(--warning)' : 'var(--success)';
+            
+            occupationChart.innerHTML += `
+                <div style="flex:1; display:flex; flex-direction:column; align-items:center">
+                    <div class="chart-bar" style="width:100%; height:${percent}%; background:${color}">
+                        <div class="chart-label">${occupationData[index]}</div>
+                        <div class="chart-value">${Math.round(percent)}%</div>
+                    </div>
+                    <div style="margin-top:5px; font-size:0.7rem; color:#94a3b8">${hour}</div>
+                </div>`;
+        });
+        
+        // Grid de quadras no dashboard
+        const courtsGrid = document.getElementById('dashboard-courts-grid');
+        courtsGrid.innerHTML = '';
+        
+        for(let i = 1; i <= 12; i++) {
+            const active = db.orders.find(o => o.court === i && o.status !== 'done');
+            const status = active ? 'ocupada' : 'livre';
+            const color = active ? 'var(--danger)' : 'var(--success)';
+            const value = active ? `R$ ${active.total.toFixed(2)}` : 'Livre';
+            
+            courtsGrid.innerHTML += `
+                <div class="occupation-card" style="cursor:${active ? 'pointer' : 'default'}" ${active ? `onclick="showPage('pdv')"` : ''}>
+                    <div class="occupation-label">Quadra ${i}</div>
+                    <div class="occupation-value" style="color:${color}">${value}</div>
+                </div>`;
+        }
+    }
+
+    // RELATÓRIOS
+    function generateReport() {
+        const startDate = document.getElementById('report-start-date').value;
+        const endDate = document.getElementById('report-end-date').value;
+        
+        let filteredOrders = [...db.orders];
+        
+        if(startDate && endDate) {
+            filteredOrders = filteredOrders.filter(o => {
+                if(!o.timestamp) return false;
+                const orderDate = new Date(o.timestamp.split(',')[0].split('/').reverse().join('-'));
+                const start = new Date(startDate);
+                const end = new Date(endDate);
+                end.setHours(23, 59, 59, 999);
+                return orderDate >= start && orderDate <= end;
+            });
+        }
+        
+        // Relatório por forma de pagamento
+        const pixOrders = filteredOrders.filter(o => o.payment === 'pix');
+        const cardOrders = filteredOrders.filter(o => o.payment === 'card');
+        const cashOrders = filteredOrders.filter(o => o.payment === 'cash');
+        
+        const pixTotal = pixOrders.reduce((sum, o) => sum + o.total, 0);
+        const cardTotal = cardOrders.reduce((sum, o) => sum + o.total, 0);
+        const cashTotal = cashOrders.reduce((sum, o) => sum + o.total, 0);
+        
+        document.getElementById('report-pix-count').textContent = pixOrders.length;
+        document.getElementById('report-pix-value').textContent = `R$ ${pixTotal.toFixed(2)}`;
+        
+        document.getElementById('report-card-count').textContent = cardOrders.length;
+        document.getElementById('report-card-value').textContent = `R$ ${cardTotal.toFixed(2)}`;
+        
+        document.getElementById('report-cash-count').textContent = cashOrders.length;
+        document.getElementById('report-cash-value').textContent = `R$ ${cashTotal.toFixed(2)}`;
+        
+        // Detalhes da tabela
+        const tbody = document.getElementById('report-table-body');
+        tbody.innerHTML = '';
+        
+        filteredOrders.sort((a, b) => b.id - a.id).forEach(o => {
+            const paymentIcons = {
+                pix: '<i class="fas fa-qrcode" style="color:var(--pix)"></i>',
+                card: '<i class="fas fa-credit-card" style="color:var(--card-color)"></i>',
+                cash: '<i class="fas fa-money-bill-wave" style="color:var(--cash)"></i>'
+            };
+            
+            const received = o.payment === 'cash' ? `R$ ${o.cashReceived.toFixed(2)}` : '-';
+            const change = o.payment === 'cash' ? `R$ ${o.change.toFixed(2)}` : '-';
+            
+            tbody.innerHTML += `
+                <tr>
+                    <td>${o.timestamp || 'N/A'}</td>
+                    <td>${o.court}</td>
+                    <td>${o.client}</td>
+                    <td>${o.items.map(i => `${i.qty}x ${i.name}`).join(', ')}</td>
+                    <td><strong>R$ ${o.total.toFixed(2)}</strong></td>
+                    <td>${received}</td>
+                    <td>${change}</td>
+                    <td>${paymentIcons[o.payment] || ''} ${o.payment}</td>
+                </tr>`;
+        });
+    }
+
+    function exportReport() {
+        const table = document.querySelector('#report-details table');
+        const rows = table.querySelectorAll('tr');
+        
+        let csv = 'Data/Hora,Quadra,Cliente,Itens,Total,Recebido,Troco,Pagamento\n';
+        
+        rows.forEach((row, index) => {
+            if(index === 0) return; // Pular cabeçalho
+            
+            const cells = row.querySelectorAll('td');
+            const rowData = [];
+            
+            cells.forEach(cell => {
+                // Remover tags HTML
+                const text = cell.textContent.replace(/[\n\r]/g, ' ').trim();
+                rowData.push(`"${text}"`);
+            });
+            
+            csv += rowData.join(',') + '\n';
+        });
+        
+        // Criar arquivo para download
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', `relatorio_arena_pro_${new Date().toISOString().split('T')[0]}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    function render() {
+        // Render Quadras
+        const grid = document.getElementById('courts-grid');
+        grid.innerHTML = '';
+        for(let i=1; i<=12; i++){
+            const active = db.orders.find(o => o.court === i && o.status !== 'done');
+            const statusClass = active ? active.status : 'free';
+            grid.innerHTML += `
+                <button class="court-btn ${statusClass}" onclick="openModal(${i})">
+                    ${i}
+                    ${active ? `<div style="font-size:0.6rem; margin-top:5px">#${active.id}</div>` : ''}
+                </button>`;
+        }
+
+        // Render Pedidos
+        renderOrdersList();
+
+        // Render Tabelas Config
+        const tbodyProd = document.querySelector('#table-prods tbody');
+        tbodyProd.innerHTML = '';
+        db.products.forEach(p => {
+            const emojis = {
+                hidratacao: '💧',
+                snacks: '🍌',
+                comida: '🍔',
+                bebidas: '🍺'
+            };
+            
+            const stockStatus = p.stock < p.minStock ? 'style="color:var(--danger); font-weight:bold"' : '';
+            
+            tbodyProd.innerHTML += `
+                <tr>
+                    <td>${emojis[p.category] || '📦'} ${p.name}</td>
+                    <td>R$ ${p.price.toFixed(2)}</td>
+                    <td>${p.category}</td>
+                    <td ${stockStatus}>${p.stock} (mín: ${p.minStock})</td>
+                    <td><button class="btn btn-danger" style="padding:5px 10px; font-size:0.8rem" onclick="delItem('products',${p.id})">Excluir</button></td>
+                </tr>`;
+        });
+
+        const tbodyCli = document.querySelector('#table-clis tbody');
+        tbodyCli.innerHTML = '';
+        db.clients.forEach(c => {
+            tbodyCli.innerHTML += `
+                <tr>
+                    <td>${c.name}</td>
+                    <td>${c.phone || '-'}</td>
+                    <td><button class="btn btn-danger" style="padding:5px 10px; font-size:0.8rem" onclick="delItem('clients',${c.id})">Excluir</button></td>
+                </tr>`;
+        });
+        
+        // Atualizar estatísticas
+        updateStats();
+        
+        // Atualizar dashboard se estiver visível
+        if(document.getElementById('dashboard').classList.contains('active')) {
+            updateDashboard();
+        }
+    }
+
+    function closeModal() { 
+        document.getElementById('modal').style.display = 'none'; 
+    }
+    
+    // Auto-login se já estiver logado
+    if(db.role) {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('nav-config').style.display = db.role === 'admin' ? 'inline' : 'none';
+    }
+    
+    // Setar datas padrão para hoje
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('report-start-date').value = today;
+    document.getElementById('report-end-date').value = today;
+    
+    render();
+</script>
+</body>
+</html>
